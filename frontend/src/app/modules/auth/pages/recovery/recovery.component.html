@@ -1,0 +1,87 @@
+<app-auth-layout
+  title="Set New Password"
+  subtitle="Create a strong password for your account">
+
+  <div class="recovery-content">
+    <!-- Invalid Token State -->
+    <div *ngIf="!isTokenValid" class="invalid-token">
+      <div class="invalid-token-icon">
+        <fa-icon [icon]="['fas', 'exclamation-triangle']"></fa-icon>
+      </div>
+      <h3>Invalid Recovery Link</h3>
+      <p>This password reset link is invalid or has expired. Please request a new password reset.</p>
+      <app-auth-button
+        [type]="'button'"
+        [variant]="'primary'"
+        (click)="onBackToLogin()">
+        Back to Login
+      </app-auth-button>
+    </div>
+
+    <!-- Recovery Form -->
+    @if (isTokenValid && !isCompleted) {
+      <form [formGroup]="recoveryForm" (ngSubmit)="onSubmit()">
+          <div class="form-fields">
+            <app-auth-form-field
+              [type]="'password'"
+              [placeholder]="'New Password'"
+            formControlName="password"
+            [errorMessage]="getFieldError('password')"
+            [hasError]="hasFieldError('password')"
+            [icon]="'lock'">
+          </app-auth-form-field>
+
+          <app-auth-form-field
+            [type]="'password'"
+            [placeholder]="'Confirm New Password'"
+            formControlName="confirmPassword"
+            [errorMessage]="getFieldError('confirmPassword')"
+            [hasError]="hasFieldError('confirmPassword')"
+            [icon]="'lock'">
+          </app-auth-form-field>
+        </div>
+
+        <div class="password-requirements">
+          <h4>Password Requirements:</h4>
+          <ul>
+            <li>At least 8 characters long</li>
+            <li>Contains uppercase and lowercase letters</li>
+            <li>Contains at least one number</li>
+            <li>Contains at least one special character</li>
+          </ul>
+        </div>
+
+        <div class="form-actions">
+          <app-auth-button
+            [type]="'submit'"
+            [variant]="'primary'"
+            [loading]="isLoading"
+            [disabled]="recoveryForm.invalid || isLoading">
+            Reset Password
+          </app-auth-button>
+        </div>
+      </form>
+    }
+    <!-- Success State -->
+    @if (isCompleted) {
+      <div class="success-state">
+        <div class="success-animation">
+          <div class="success-icon">
+            <fa-icon [icon]="['fas', 'check-circle']"></fa-icon>
+          </div>
+          <h3>Password Reset Successfully!</h3>
+          <p>Your password has been reset successfully. You can now log in with your new password.</p>
+
+          <div class="success-actions">
+            <app-auth-button
+              [type]="'button'"
+              [variant]="'primary'"
+              (click)="onBackToLogin()">
+              Continue to Login
+            </app-auth-button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</app-auth-layout>

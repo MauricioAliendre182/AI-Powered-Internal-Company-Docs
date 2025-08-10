@@ -1,0 +1,41 @@
+<div class="auth-layout">
+  <div class="auth-container">
+    <!-- Header Section -->
+    <div class="auth-header">
+      <div class="brand-section">
+        <div class="brand-logo">
+          <i class="fas fa-file-alt"></i>
+        </div>
+        <h1 class="brand-title">Internal Docs AI</h1>
+        <p class="brand-subtitle">Intelligent Document Management System</p>
+      </div>
+    </div>
+
+    <!-- Content Section -->
+    <div class="auth-content">
+      <div class="auth-card">
+        <div class="card-header">
+          <h2 class="auth-title">{{ title() }}</h2>
+          <p class="auth-subtitle" *ngIf="subtitle">{{ subtitle() }}</p>
+        </div>
+
+        <div class="card-body">
+          <ng-content></ng-content>
+        </div>
+
+        <!-- Navigation Links -->
+        <div class="card-footer" *ngIf="showBackToLogin">
+          <a [routerLink]="backToLoginRoute()" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            {{ backToLoginText() }}
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer Section -->
+    <div class="auth-footer">
+      <p>&copy; 2025 Internal Docs AI. All rights reserved.</p>
+    </div>
+  </div>
+</div>

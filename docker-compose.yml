@@ -1,0 +1,64 @@
+name: AI-Powered-Internal-Company-Docs
+services:
+  frontend:
+    container_name: angular_app
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+  backend:
+    container_name: go_documents_app
+    restart: unless-stopped
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8090:8090"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: user
+      DB_PASSWORD: internal_docs_password
+      DB_NAME: internal_docs
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: pgvector/pgvector:pg16  # PostgreSQL 16 with pgvector
+    container_name: postgres_container
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+       POSTGRES_USER: user
+       POSTGRES_PASSWORD: internal_docs_password
+       POSTGRES_DB: internal_docs
+       POSTGRES_HOST: 0.0.0.0
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # healthcheck to ensure PostgreSQL is ready
+    # test: ["CMD-SHELL", "pg_isready -U user -d internal_docs"] is a common way to check PostgreSQL readiness
+    # interval: 10s checks every 10 seconds
+    # timeout: 5s sets a timeout of 5 seconds for the check
+    # retries: 5 allows 5 retries before considering the service unhealthy
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d internal_docs"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "admin@admin.com"
+      PGADMIN_DEFAULT_PASSWORD: "admin"
+    ports:
+      - "8081:80"
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  postgres_data:

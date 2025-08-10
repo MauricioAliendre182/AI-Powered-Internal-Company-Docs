@@ -1,0 +1,180 @@
+/*This URL is to get Font Awesome icons */
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+
+.auth-layout {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><polygon fill="%23ffffff" fill-opacity="0.05" points="0,0 1000,300 1000,1000 0,700"/></svg>');
+    pointer-events: none;
+  }
+}
+
+.auth-container {
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Header Section */
+.auth-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.brand-section {
+  color: white;
+}
+
+.brand-logo {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+
+  i {
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  }
+}
+
+.brand-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.brand-subtitle {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin: 0;
+  font-weight: 300;
+}
+
+/* Content Section */
+.auth-content {
+  margin-bottom: 2rem;
+}
+
+.auth-card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  animation: slideInUp 0.6s ease-out;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.card-header {
+  padding: 2rem 2rem 1rem;
+  text-align: center;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.auth-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin: 0 0 0.5rem 0;
+}
+
+.auth-subtitle {
+  color: #718096;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.card-body {
+  padding: 2rem;
+}
+
+.card-footer {
+  padding: 1rem 2rem 2rem;
+  text-align: center;
+  border-top: 1px solid #f0f0f0;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+
+  &:hover {
+    color: #5a67d8;
+    transform: translateX(-2px);
+  }
+
+  i {
+    font-size: 0.8rem;
+  }
+}
+
+/* Footer Section */
+.auth-footer {
+  text-align: center;
+  color: white;
+  opacity: 0.8;
+  font-size: 0.85rem;
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .auth-layout {
+    padding: 0.5rem;
+  }
+
+  .auth-container {
+    max-width: 100%;
+  }
+
+  .brand-logo {
+    font-size: 2.5rem;
+  }
+
+  .brand-title {
+    font-size: 1.75rem;
+  }
+
+  .auth-title {
+    font-size: 1.5rem;
+  }
+
+  .card-header,
+  .card-body,
+  .card-footer {
+    padding: 1.5rem;
+  }
+}
+
+/* Animation for card entrance */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

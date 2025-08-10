@@ -1,0 +1,33 @@
+<button
+  [type]="type()"
+  [class]="buttonClasses"
+  [disabled]="disabled() || loading()"
+  (click)="onClick($event)"
+>
+  <!-- Loading Spinner -->
+  <div class="loading-spinner" *ngIf="loading()">
+    <i class="fas fa-spinner fa-spin"></i>
+  </div>
+
+  <!-- Content -->
+  <div class="button-content" [class.hidden]="loading()">
+    <!-- Left Icon -->
+    @if (icon() && iconPosition() === 'left') {
+      <i
+        [class]="'fas fa-' + icon()"
+        class="button-icon icon-left"
+      ></i>
+    }
+
+    <!-- Text -->
+    <span class="button-text">{{ text() }}</span>
+
+    <!-- Right Icon -->
+    @if (icon() && iconPosition() === 'right') {
+      <i
+        [class]="'fas fa-' + icon()"
+        class="button-icon icon-right"
+      ></i>
+    }
+  </div>
+</button>

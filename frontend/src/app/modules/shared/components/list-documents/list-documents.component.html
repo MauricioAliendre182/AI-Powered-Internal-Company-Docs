@@ -1,0 +1,68 @@
+<!-- Documents List -->
+<div class="documents-section">
+  <h2>Documents</h2>
+
+  <!-- Loading State -->
+  @if (documentsStatus === 'loading') {
+    <div class="loading">
+      <i class="fas fa-spinner fa-spin"></i>
+      Loading documents...
+    </div>
+  }
+
+  <!-- No Documents State -->
+  @if (!documents && documentsStatus === 'success') {
+    <div class="no-documents">
+      <i class="fas fa-folder-open"></i>
+      <p>No documents uploaded yet</p>
+    </div>
+  }
+
+  <div class="documents-grid">
+    <!-- Document Cards -->
+    @for (document of documents; track document.id) {
+      <div class="document-card">
+        <div class="document-header">
+          <i [class]="getFileIcon('')"></i>
+          <div class="document-info">
+            <div class="document-name">{{ document.name }}</div>
+            <div class="document-date">{{ formatDate(document.uploaded_at) }}</div>
+          </div>
+
+          <div class="document-actions">
+            <button (click)="viewChunks(document)" class="action-btn">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button (click)="deleteDocument(document.id)" class="action-btn delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Chunks Preview -->
+        @if (selectedDocumentId === document.id && chunks.length > 0) {
+          <div class="chunks-preview">
+            <h4>Document Chunks</h4>
+            <div class="chunks-list">
+              <!-- Display chunks up to chunksToShow limit -->
+              @for (chunk of chunks.slice(0, chunksToShow) ; track chunk.chunk_index) {
+                <div class="chunk-item">
+                  <div class="chunk-index">Chunk {{ chunk.chunk_index + 1 }}</div>
+                  <div class="chunk-content">{{ chunk.content.substring(0, 100) }}...</div>
+                </div>
+              }
+              <!-- Load more button if there are more chunks -->
+              @if (hasMoreChunks()) {
+                <button (click)="loadMoreChunks()" class="load-more-btn">
+                  <i class="fas fa-chevron-down"></i>
+                  Load {{ Math.min(chunksLoadIncrement, chunks.length - chunksToShow) }} more chunks
+                  ({{ chunks.length - chunksToShow }} remaining)
+                </button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>

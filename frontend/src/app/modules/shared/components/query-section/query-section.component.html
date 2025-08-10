@@ -1,0 +1,40 @@
+<!-- Query Section -->
+<div class="query-section">
+  <h2>Ask Questions</h2>
+
+  <form [formGroup]="queryForm" (ngSubmit)="queryDocuments()">
+    <div class="query-input-group">
+      <textarea formControlName="question" placeholder="Ask a question about your documents..." rows="3">
+          </textarea>
+
+      <button type="submit" [disabled]="queryForm.invalid || queryStatus === 'loading'" class="query-btn">
+        @if (queryStatus === 'loading') {
+          <i class="fas fa-spinner fa-spin"></i>
+        } @else {
+          <i class="fas fa-paper-plane"></i>
+        }
+        {{ queryStatus === 'loading' ? 'Thinking...' : 'Ask AI' }}
+      </button>
+    </div>
+  </form>
+
+  <!-- Query Response -->
+  @if (queryStatus === 'success' && queryResponse) {
+    <div class="query-response">
+      <h3>AI Response:</h3>
+      <div class="response-content">
+        {{ queryResponse.answer }}
+      </div>
+    </div>
+  } @if (queryStatus === 'loading') {
+    <div class="loading-message">
+      <i class="fas fa-spinner fa-spin"></i>
+      Thinking...
+    </div>
+  } @if (queryStatus === 'failed' && queryError) {
+    <div class="error-message">
+      <i class="fas fa-exclamation-circle"></i>
+      {{ queryError }}
+    </div>
+  }
+</div>

@@ -1,0 +1,257 @@
+name: Go Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  GO_VERSION: '1.21'
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        go-version: ['1.20', '1.21', '1.22']
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ matrix.go-version }}
+
+    - name: Cache Go modules
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ matrix.go-version }}-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-${{ matrix.go-version }}-
+
+    - name: Download dependencies
+      working-directory: ./backend
+      run: go mod download
+
+    - name: Verify dependencies
+      working-directory: ./backend
+      run: go mod verify
+
+    - name: Check Go module tidiness
+      working-directory: ./backend
+      run: |
+        go mod tidy
+        git diff --exit-code go.mod go.sum || (echo "go.mod or go.sum not tidy" && exit 1)
+
+    - name: Run go vet
+      working-directory: ./backend
+      run: go vet ./...
+
+    - name: Run unit tests
+      working-directory: ./backend
+      env:
+        JWT_SECRET: "test-secret-key-for-testing-only"
+        OPENAI_API_KEY: "test-key"
+        GOOGLE_AI_API_KEY: "test-key"
+        ALLOWED_ORIGINS: "http://localhost:4200"
+        ENVIRONMENT: "test"
+        DB_PASSWORD: "test-password"
+        DB_HOST: "localhost"
+        DB_PORT: "5432"
+        DB_USER: "postgres"
+        DB_NAME: "test_db"
+      run: |
+        echo "Running unit tests for all packages..."
+        echo "Testing main package..."
+        go test -v -race -timeout=2m .
+        echo "Testing models package..."
+        go test -v -race -timeout=2m ./models
+        echo "Testing utils package..."
+        go test -v -race -timeout=2m ./utils
+        echo "Testing routes package..."
+        go test -v -race -timeout=2m ./routes
+        echo "Running all tests together..."
+        go test -v -race -timeout=5m ./...
+
+    - name: Run benchmark tests
+      working-directory: ./backend
+      env:
+        JWT_SECRET: "test-secret-key-for-testing-only"
+        OPENAI_API_KEY: "test-key"
+        GOOGLE_AI_API_KEY: "test-key"
+        ALLOWED_ORIGINS: "http://localhost:4200"
+        ENVIRONMENT: "test"
+        DB_PASSWORD: "test-password"
+        DB_HOST: "localhost"
+        DB_PORT: "5432"
+        DB_USER: "postgres"
+        DB_NAME: "test_db"
+      run: |
+        echo "Running benchmark tests..."
+        go test -bench=. -benchmem -run=^$ ./... || echo "No benchmarks found"
+
+    - name: Generate coverage report
+      working-directory: ./backend
+      env:
+        JWT_SECRET: "test-secret-key-for-testing-only"
+        OPENAI_API_KEY: "test-key"
+        GOOGLE_AI_API_KEY: "test-key"
+        ALLOWED_ORIGINS: "http://localhost:4200"
+        ENVIRONMENT: "test"
+        DB_PASSWORD: "test-password"
+        DB_HOST: "localhost"
+        DB_PORT: "5432"
+        DB_USER: "postgres"
+        DB_NAME: "test_db"
+      run: |
+        echo "Generating coverage report..."
+        go test -race -coverprofile coverage.out -covermode atomic ./...
+        go tool cover -html coverage.out -o coverage.html
+
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./backend/coverage.out
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+    - name: Upload coverage HTML report
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report-${{ matrix.go-version }}
+        path: |
+          ./backend/coverage.out
+          ./backend/coverage.html
+        retention-days: 30
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: Run golangci-lint
+      uses: golangci/golangci-lint-action@v3
+      with:
+        version: latest
+        working-directory: ./backend
+        args: --timeout=5m
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: Run Gosec Security Scanner
+      uses: securecodewarrior/github-action-gosec@master
+      with:
+        args: '-fmt sarif -out gosec-results.sarif ./backend/...'
+
+    - name: Upload SARIF file
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: gosec-results.sarif
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [test, lint]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: Build backend
+      working-directory: ./backend
+      run: |
+        go build -v -ldflags="-s -w" -o main .
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: backend-binary
+        path: ./backend/main
+        retention-days: 30
+
+  docker:
+    name: Docker Build Test
+    runs-on: ubuntu-latest
+    needs: [test, lint]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build backend Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./backend
+        push: false
+        tags: ai-docs-backend:test
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Build frontend Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: ./frontend
+        push: false
+        tags: ai-docs-frontend:test
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    - name: Test Docker Compose
+      run: |
+        docker-compose -f docker-compose.yml config
+
+  notify:
+    name: Notify Results
+    runs-on: ubuntu-latest
+    needs: [test, lint, security, build, docker]
+    if: always()
+    
+    steps:
+    - name: Notify success
+      if: ${{ needs.test.result == 'success' && needs.lint.result == 'success' && needs.build.result == 'success' }}
+      run: echo "✅ All tests passed successfully!"
+
+    - name: Notify failure
+      if: ${{ needs.test.result == 'failure' || needs.lint.result == 'failure' || needs.build.result == 'failure' }}
+      run: |
+        echo "❌ Some tests failed!"
+        echo "Test result: ${{ needs.test.result }}"
+        echo "Lint result: ${{ needs.lint.result }}"
+        echo "Build result: ${{ needs.build.result }}"
+        exit 1

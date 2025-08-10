@@ -1,0 +1,10 @@
+<app-dashboard-layout>
+  <div class="upload-page">
+    <div class="page-header">
+      <h1>Upload Documents</h1>
+      <p>Upload your documents to make them searchable with AI</p>
+    </div>
+
+    <app-upload-document (loadDocumentsOnUpload)="onUploadComplete($event)"></app-upload-document>
+  </div>
+</app-dashboard-layout>

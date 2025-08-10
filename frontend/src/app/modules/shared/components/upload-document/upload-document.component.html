@@ -1,0 +1,97 @@
+<!-- File Upload Section -->
+  <div class="upload-section">
+    <h2>Upload Document</h2>
+
+    <!-- this div is to handle file uploads thorugh drag and drop -->
+    <div
+      class="file-upload-area"
+      [class.dragover]="isDragOver"
+      (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)"
+      (click)="fileInput.click()"
+      >
+
+      <input
+        #fileInput
+        type="file"
+        hidden
+        (change)="onFileSelected($event)"
+        accept=".pdf,.doc,.docx,.txt,.csv,.xls,.xlsx"
+      >
+
+      <div class="upload-content">
+        <i class="fas fa-cloud-upload-alt"></i>
+        <p>Drop files here or click to browse</p>
+        <small>Supported: PDF, DOC, DOCX, TXT, CSV, XLS, XLSX (Max 10MB)</small>
+      </div>
+    </div>
+
+    <!-- File Preview -->
+    @if (selectedFile) {
+      <div class="file-preview">
+        <div class="file-info">
+          <i [class]="getFileIcon(selectedFile.type)"></i>
+          <div>
+            <div class="file-name">{{ selectedFile.name }}</div>
+            <div class="file-size">{{ formatFileSize(selectedFile.size) }}</div>
+          </div>
+          <button (click)="removeFile()" class="remove-btn">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+
+        <!-- Validation Errors -->
+        @if (validationErrors.length > 0) {
+          @for (error of validationErrors; track $index) {
+            <div class="error-item">
+              <i class="fas fa-exclamation-circle"></i>
+              {{ error }}
+            </div>
+          }
+        }
+        <!-- Display validation errors -->
+        @if (validationErrors.length > 0) {
+          <div class="validation-errors">
+            @for (error of validationErrors; track $index) {
+              <div class="error-item">
+                <i class="fas fa-exclamation-circle"></i>
+                {{ error }}
+              </div>
+            }
+          </div>
+        }
+
+        <!-- Upload Button -->
+        @if (validationErrors.length === 0) {
+          <button
+            (click)="uploadDocument()"
+            [disabled]="uploadStatus === 'loading'"
+            class="upload-btn"
+          >
+            <!-- Show loading spinner if upload is in progress -->
+            @if (uploadStatus === 'loading') {
+              <i class="fas fa-spinner fa-spin"></i>
+            } @else {
+              <i class="fas fa-upload"></i>
+            }
+            {{ uploadStatus === 'loading' ? 'Uploading...' : 'Upload Document' }}
+          </button>
+        }
+      </div>
+    }
+
+
+    <!-- Upload Status -->
+    @if (uploadStatus === 'loading') {
+      <div class="loading-message">
+        <i class="fas fa-spinner fa-spin"></i>
+        Uploading document...
+      </div>
+    } @else if (uploadStatus === 'success' || uploadStatus === 'failed') {
+      <div class="upload-status">
+        <i [class]="uploadStatus === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle'"></i>
+        {{ uploadStatus === 'success' ? 'Document uploaded successfully!' : uploadError }}
+      </div>
+    }
+</div>

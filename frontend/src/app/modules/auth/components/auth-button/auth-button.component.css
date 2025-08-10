@@ -1,0 +1,193 @@
+.auth-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  font-family: inherit;
+  outline: none;
+  overflow: hidden;
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+/* Sizes */
+.auth-button.size-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  min-height: 2.25rem;
+}
+
+.auth-button.size-md {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  min-height: 2.75rem;
+}
+
+.auth-button.size-lg {
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+  min-height: 3.25rem;
+}
+
+/* Variants */
+.auth-button.variant-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+  }
+}
+
+.auth-button.variant-secondary {
+  background-color: #f8fafc;
+  color: #475569;
+  border-color: #e2e8f0;
+  
+  &:hover:not(:disabled) {
+    background-color: #f1f5f9;
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    background-color: #e2e8f0;
+  }
+}
+
+.auth-button.variant-outline {
+  background-color: transparent;
+  color: #667eea;
+  border-color: #667eea;
+  
+  &:hover:not(:disabled) {
+    background-color: #667eea;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+  }
+}
+
+.auth-button.variant-ghost {
+  background-color: transparent;
+  color: #667eea;
+  
+  &:hover:not(:disabled) {
+    background-color: rgba(102, 126, 234, 0.1);
+    transform: translateY(-1px);
+  }
+  
+  &:active:not(:disabled) {
+    transform: translateY(0);
+    background-color: rgba(102, 126, 234, 0.15);
+  }
+}
+
+/* Full width */
+.auth-button.full-width {
+  width: 100%;
+}
+
+/* Loading state */
+.auth-button.loading {
+  color: transparent;
+}
+
+.loading-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: currentColor;
+}
+
+.button-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s ease;
+  
+  &.hidden {
+    opacity: 0;
+  }
+}
+
+.button-icon {
+  font-size: 0.875em;
+  
+  &.icon-left {
+    margin-right: 0.125rem;
+  }
+  
+  &.icon-right {
+    margin-left: 0.125rem;
+  }
+}
+
+.button-text {
+  white-space: nowrap;
+}
+
+/* Animations */
+@keyframes buttonPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
+  }
+}
+
+/* Success state animation */
+.auth-button.success {
+  animation: buttonPulse 0.6s ease-out;
+}
+
+/* Mobile optimizations */
+@media (max-width: 480px) {
+  .auth-button {
+    min-height: 3rem;
+    font-size: 1rem;
+  }
+  
+  .auth-button.size-sm {
+    min-height: 2.5rem;
+    font-size: 0.9rem;
+  }
+  
+  .auth-button.size-lg {
+    min-height: 3.5rem;
+    font-size: 1.1rem;
+  }
+}

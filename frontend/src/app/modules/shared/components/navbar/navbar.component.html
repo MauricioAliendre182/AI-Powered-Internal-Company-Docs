@@ -1,0 +1,113 @@
+<nav class="navbar">
+  <div class="navbar-container">
+    <!-- Brand/Logo -->
+    <div class="navbar-brand">
+      <a routerLink="/app/documents" class="brand-link">
+        <i class="fas fa-file-alt"></i>
+        <span class="brand-text">DocAI</span>
+      </a>
+    </div>
+
+    <!-- Desktop Navigation Links -->
+    <div class="navbar-nav">
+      <a routerLink="/app/documents"
+         routerLinkActive="active"
+         class="nav-link">
+        <i class="fas fa-folder"></i>
+        <span>Documents</span>
+      </a>
+      <a routerLink="/app/upload"
+         routerLinkActive="active"
+         class="nav-link">
+        <i class="fas fa-upload"></i>
+        <span>Upload</span>
+      </a>
+      <a routerLink="/app/query"
+         routerLinkActive="active"
+         class="nav-link">
+        <i class="fas fa-search"></i>
+        <span>Query</span>
+      </a>
+    </div>
+
+    <!-- User Menu -->
+    <div class="user-menu">
+      <div class="user-info" (click)="toggleMenu()">
+        <div class="user-avatar">
+          @if (user?.avatar) {
+            <img [src]="user?.avatar" [alt]="user?.name || 'User'">
+          } @else {
+            {{ getInitials(user?.name) }}
+          }
+        </div>
+        <span class="user-name">{{ user?.name || 'User' }}</span>
+        <i class="fas fa-chevron-down dropdown-icon"
+           [class.rotated]="isMenuOpen"></i>
+      </div>
+
+      <!-- Dropdown Menu -->
+      @if (isMenuOpen) {
+        <div class="dropdown-menu" (click)="closeMenu()">
+          <a routerLink="/app/profile" class="dropdown-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+          </a>
+          <div class="dropdown-divider"></div>
+          <button (click)="logout()" class="dropdown-item logout-btn">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+          </button>
+        </div>
+      }
+    </div>
+
+    <!-- Mobile Menu Button -->
+    <button class="mobile-menu-btn" (click)="toggleMenu()">
+      <i class="fas fa-bars"></i>
+    </button>
+  </div>
+
+  <!-- Mobile Navigation -->
+  @if (isMenuOpen) {
+    <div class="mobile-nav">
+      <a routerLink="/app/documents"
+         routerLinkActive="active"
+         class="mobile-nav-link"
+         (click)="closeMenu()">
+        <i class="fas fa-folder"></i>
+        <span>Documents</span>
+      </a>
+      <a routerLink="/app/upload"
+         routerLinkActive="active"
+         class="mobile-nav-link"
+         (click)="closeMenu()">
+        <i class="fas fa-upload"></i>
+        <span>Upload</span>
+      </a>
+      <a routerLink="/app/query"
+         routerLinkActive="active"
+         class="mobile-nav-link"
+         (click)="closeMenu()">
+        <i class="fas fa-search"></i>
+        <span>Query</span>
+      </a>
+      <a routerLink="/app/profile"
+         routerLinkActive="active"
+         class="mobile-nav-link"
+         (click)="closeMenu()">
+        <i class="fas fa-user"></i>
+        <span>Profile</span>
+      </a>
+      <div class="mobile-nav-divider"></div>
+      <button (click)="logout()" class="mobile-nav-link logout-btn">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </button>
+    </div>
+  }
+</nav>
+
+<!-- Backdrop for mobile menu -->
+@if (isMenuOpen) {
+  <div class="mobile-backdrop" (click)="closeMenu()"></div>
+}

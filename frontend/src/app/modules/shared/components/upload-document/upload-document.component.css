@@ -1,0 +1,146 @@
+.upload-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  margin: 0 0 1.5rem 0;
+  color: #2d3748;
+  font-size: 1.5rem;
+}
+
+.file-upload-area {
+  border: 2px dashed #cbd5e0;
+  border-radius: 8px;
+  padding: 3rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #f8fafc;
+}
+
+.file-upload-area:hover,
+.file-upload-area.dragover {
+  border-color: #667eea;
+  background: #f0f4ff;
+}
+
+.upload-content i {
+  font-size: 3rem;
+  color: #cbd5e0;
+  margin-bottom: 1rem;
+}
+
+.file-preview {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #f8fafc;
+  border-radius: 8px;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.file-info i {
+  font-size: 2rem;
+  color: #667eea;
+}
+
+.file-name {
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.file-size {
+  font-size: 0.875rem;
+  color: #718096;
+}
+
+.remove-btn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  color: #e53e3e;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 4px;
+}
+
+.validation-errors {
+  margin-top: 1rem;
+}
+
+.error-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #e53e3e;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.upload-btn {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.upload-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.upload-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.loading-message {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  color: #718096;
+}
+
+.upload-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.upload-status .fa-check-circle {
+  color: #38a169;
+}
+
+.upload-status .fa-exclamation-circle {
+  color: #e53e3e;
+}
+
+@media (max-width: 768px) {
+  .upload-section {
+    padding: 1.5rem;
+  }
+
+  .file-upload-area {
+    padding: 2rem 1rem;
+  }
+}

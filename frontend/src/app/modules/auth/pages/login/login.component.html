@@ -1,0 +1,63 @@
+<app-auth-layout
+  title="Welcome Back"
+  subtitle="Sign in to your account to continue">
+
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+    <!-- Email Field -->
+    <app-auth-form-field
+      [label]="'Email Address'"
+      [type]="'email'"
+      [icon]="'envelope'"
+      [placeholder]="'Enter your email'"
+      [required]="true"
+      formControlName="email"
+      [errorMessage]="getFieldError('email')">
+    </app-auth-form-field>
+
+    <!-- Password Field -->
+    <app-auth-form-field
+      [label]="'Password'"
+      [type]="'password'"
+      [icon]="'lock'"
+      [placeholder]="'Enter your password'"
+      [required]="true"
+      formControlName="password"
+      [errorMessage]="getFieldError('password')">
+    </app-auth-form-field>
+
+    <!-- Remember Me & Forgot Password -->
+    <div class="form-options">
+      <label class="remember-me">
+        <input
+          type="checkbox"
+          formControlName="rememberMe"
+          class="checkbox-input">
+        <span class="checkbox-text">Remember me</span>
+      </label>
+
+      <a routerLink="/forgot-password" class="forgot-link">
+        Forgot password?
+      </a>
+    </div>
+
+    <!-- Submit Button -->
+    <app-auth-button
+      [type]="'submit'"
+      [text]="'Sign In'"
+      [icon]="'sign-in-alt'"
+      [variant]="'primary'"
+      [size]="'lg'"
+      [fullWidth]="true"
+      [loading]="isLoading"
+      [disabled]="loginForm.invalid">
+    </app-auth-button>
+
+    <!-- Sign Up Link -->
+    <div class="auth-links">
+      <p class="signup-text">
+        Don't have an account?
+        <a routerLink="/register" class="signup-link">Sign up here</a>
+      </p>
+    </div>
+  </form>
+</app-auth-layout>

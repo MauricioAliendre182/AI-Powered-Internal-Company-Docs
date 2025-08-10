@@ -1,0 +1,109 @@
+<app-dashboard-layout>
+  <div class="profile-page">
+    <div class="page-header">
+      <h1>My Profile</h1>
+      <p>View and manage your account information</p>
+    </div>
+
+  <!-- Loading State -->
+  @if (profileStatus === 'loading') {
+    <div class="loading-container">
+      <div class="loading-spinner">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Loading your profile...</p>
+      </div>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (profileStatus === 'failed') {
+    <div class="error-container">
+      <div class="error-message">
+        <i class="fas fa-exclamation-circle"></i>
+        <h3>Failed to Load Profile</h3>
+        <p>{{ error }}</p>
+        <button (click)="loadProfile()" class="retry-btn">
+          <i class="fas fa-redo"></i>
+          Try Again
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Profile Content -->
+  @if (profileStatus === 'success' && user) {
+    <div class="profile-container">
+      <!-- Profile Header -->
+      <div class="profile-header">
+        <div class="avatar-section">
+          <div class="avatar">
+            @if (user.avatar) {
+              <img [src]="user.avatar" [alt]="user.name">
+            } @else {
+              {{ getInitials(user.name) }}
+            }
+          </div>
+          <div class="user-info">
+            <h2>{{ user.name }}</h2>
+            <p class="email">{{ user.email }}</p>
+            <span class="user-badge">User</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Details -->
+      <div class="profile-details">
+        <div class="details-grid">
+          <div class="detail-item">
+            <div class="detail-label">Full Name</div>
+            <div class="detail-value">{{ user.name }}</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">Email Address</div>
+            <div class="detail-value">{{ user.email }}</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">User ID</div>
+            <div class="detail-value">{{ user.id }}</div>
+          </div>
+
+          <div class="detail-item">
+            <div class="detail-label">Avatar</div>
+            <div class="detail-value">
+              @if (user.avatar) {
+                <span class="avatar-status">
+                  <i class="fas fa-check-circle"></i>
+                  Custom avatar set
+                </span>
+              } @else {
+                <span class="avatar-status">
+                  <i class="fas fa-user-circle"></i>
+                  Using default avatar
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Actions -->
+      <div class="profile-actions">
+        <button class="action-btn primary">
+          <i class="fas fa-edit"></i>
+          Edit Profile
+        </button>
+        <button class="action-btn secondary">
+          <i class="fas fa-key"></i>
+          Change Password
+        </button>
+        <button class="action-btn secondary">
+          <i class="fas fa-image"></i>
+          Update Avatar
+        </button>
+      </div>
+    </div>
+  }
+  </div>
+</app-dashboard-layout>

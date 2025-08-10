@@ -1,0 +1,48 @@
+<div class="form-field" [class.has-error]="hasError()" [class.focused]="isFocused" [class.disabled]="disabled()">
+  <label class="field-label" *ngIf="label" [for]="fieldId">
+    {{ label() }}
+    <span class="required-asterisk" *ngIf="required">*</span>
+  </label>
+
+  <div class="input-container">
+    <div class="input-wrapper">
+      <!-- Icon -->
+      <div class="input-icon" *ngIf="icon()">
+        <i [class]="'fas fa-' + icon()"></i>
+      </div>
+
+      <!-- Input Field -->
+      <input
+        class="form-input"
+        [id]="fieldId"
+        [type]="inputType"
+        [placeholder]="placeholder()"
+        [value]="value"
+        [disabled]="disabledButton()"
+        (input)="onInput($event)"
+        (focus)="onFocus()"
+        (blur)="onBlur()"
+        autocomplete="off"
+      />
+
+      <!-- Password Toggle -->
+      @if (type() === 'password') {
+        <button
+          type="button"
+          class="password-toggle"
+          (click)="togglePasswordVisibility()"
+          [disabled]="disabled()">
+          <i [class]="showPasswordText ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+        </button>
+      }
+    </div>
+
+    <!-- Error Message -->
+    @if (hasError()) {
+      <div class="error-message">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ errorMessage() }}
+      </div>
+    }
+  </div>
+</div>

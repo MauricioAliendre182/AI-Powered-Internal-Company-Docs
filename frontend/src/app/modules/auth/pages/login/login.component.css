@@ -1,0 +1,82 @@
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0.5rem 0;
+}
+
+.remember-me {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.checkbox-input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #667eea;
+  cursor: pointer;
+}
+
+.checkbox-text {
+  user-select: none;
+  cursor: pointer;
+}
+
+.forgot-link {
+  color: #667eea;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: #5a67d8;
+    text-decoration: underline;
+  }
+}
+
+.auth-links {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.signup-text {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.signup-link {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: #5a67d8;
+    text-decoration: underline;
+  }
+}
+
+/* Responsive design */
+@media (max-width: 480px) {
+  .form-options {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  
+  .forgot-link {
+    align-self: flex-end;
+  }
+}

@@ -1,0 +1,26 @@
+<div class="auth-card">
+  <!-- Header -->
+  @if (showHeader() && (title() || subtitle())) {
+    <div class="card-header">
+      @if (title()) {
+        <h2 class="card-title">{{ title() }}</h2>
+      }
+      @if (subtitle()) {
+        <p class="card-subtitle">{{ subtitle() }}</p>
+      }
+    </div>
+  }
+  <!-- Body -->
+  <div class="card-body">
+    <ng-content></ng-content>
+  </div>
+
+  <!-- Footer -->
+  @if (showFooter()) {
+    <div class="card-footer">
+      <!-- [slot=footer] means this content will be projected into the footer slot
+       For example: <app-auth-button slot="footer">Login</app-auth-button> -->
+      <ng-content select="[slot=footer]"></ng-content>
+    </div>
+  }
+</div>
