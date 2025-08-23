@@ -1,15 +1,15 @@
 module github.com/MauricioAliendre182/backend
 
-go 1.24.1
+go 1.23.0
 
-toolchain go1.24.5
+toolchain go1.24.0
 
 require (
 	github.com/gin-contrib/cors v1.7.6
-	github.com/ledongthuc/pdf v0.0.0-20250511090121-5959a4027728
 	github.com/mattn/go-sqlite3 v1.14.30
 	github.com/pkoukk/tiktoken-go v0.1.7
 	github.com/stretchr/testify v1.10.0
+	github.com/unidoc/unipdf/v3 v3.62.0
 )
 
 require (
@@ -17,7 +17,13 @@ require (
 	github.com/dlclark/regexp2 v1.10.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
+	github.com/unidoc/pkcs7 v0.2.0 // indirect
+	github.com/unidoc/timestamp v0.0.0-20200412005513-91597fd3793a // indirect
+	github.com/unidoc/unitype v0.4.0 // indirect
+	golang.org/x/image v0.18.0 // indirect
+	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 )
 

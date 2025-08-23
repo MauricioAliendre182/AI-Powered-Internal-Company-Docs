@@ -14,8 +14,8 @@ import (
 	"github.com/MauricioAliendre182/backend/db"
 	"github.com/MauricioAliendre182/backend/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/stretchr/testify/assert"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMain(m *testing.M) {
@@ -130,7 +130,7 @@ func TestUploadDocument(t *testing.T) {
 			expectedError:  "mime type",
 		},
 		{
-			name:           "Valid TXT upload", 
+			name:           "Valid TXT upload",
 			fileContent:    "This is a test text document with some content.",
 			fileName:       "test-document.txt",
 			contentType:    "text/plain",
@@ -291,8 +291,8 @@ func TestQueryDocuments(t *testing.T) {
 				"question": strings.Repeat("What is the policy regarding ", 100),
 			},
 			setupAuth:      true,
-			expectedStatus: http.StatusInternalServerError, // Will fail due to embedding service  
-			expectedError:  "embedding service",
+			expectedStatus: http.StatusBadRequest, // Guardrails now properly validate input length
+			expectedError:  "question too long",
 		},
 	}
 

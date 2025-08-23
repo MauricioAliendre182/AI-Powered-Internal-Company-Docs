@@ -6,61 +6,56 @@ import (
 	"io"
 	"strings"
 
-	"github.com/ledongthuc/pdf"
+	"github.com/unidoc/unipdf/v3/extractor"
+	"github.com/unidoc/unipdf/v3/model"
 )
 
 // ExtractTextFromPDF extracts readable text from a PDF file
 func ExtractTextFromPDF(reader io.ReadSeeker) (string, error) {
-	// Get the size of the file
-	size, err := reader.Seek(0, io.SeekEnd)
-	if err != nil {
-		return "", fmt.Errorf("failed to seek to end: %w", err)
-	}
-
 	// Reset to beginning
-	_, err = reader.Seek(0, io.SeekStart)
+	// Seek is to the start of the reader
+	// The parameters are (offset int64, whence int) where whence is 0 for SeekStart
+	_, err := reader.Seek(0, io.SeekStart)
 	if err != nil {
 		return "", fmt.Errorf("failed to seek to start: %w", err)
 	}
 
-	// Read the entire file into memory
-	content := make([]byte, size)
-	_, err = io.ReadFull(reader, content)
-	if err != nil {
-		return "", fmt.Errorf("failed to read content: %w", err)
-	}
-
-	// Create a ReaderAt from the byte slice
-	readerAt := bytes.NewReader(content)
-
-	// Open the PDF
-	pdfReader, err := pdf.NewReader(readerAt, size)
+	// Open the PDF using unipdf
+	// NewPdfReader creates a new PDF reader
+	pdfReader, err := model.NewPdfReader(reader)
 	if err != nil {
 		return "", fmt.Errorf("failed to create PDF reader: %w", err)
 	}
 
 	var textBuilder strings.Builder
 
+	// Get number of pages
+	// GetNumPages returns the number of pages in the PDF
+	numPages, err := pdfReader.GetNumPages()
+	if err != nil {
+		return "", fmt.Errorf("failed to get number of pages: %w", err)
+	}
+
 	// Extract text from each page
-	// NumPage returns the number of pages in the PDF
-	// Page returns the page object for the given page number
-	numPages := pdfReader.NumPage()
 	for pageNum := 1; pageNum <= numPages; pageNum++ {
-		page := pdfReader.Page(pageNum)
-		if page.V.IsNull() {
+		// GetPage returns the page at the specified index
+		page, err := pdfReader.GetPage(pageNum)
+		if err != nil {
+			LogWarn("Failed to get page", "page", pageNum, "error", err)
+			continue
+		}
+
+		// Create text extractor for the page
+		// New creates a new text extractor for the given page
+		ex, err := extractor.New(page)
+		if err != nil {
+			LogWarn("Failed to create extractor for page", "page", pageNum, "error", err)
 			continue
 		}
 
 		// Extract text from the page
-		// The GetPlainText method extracts text from the page
-		// fonts map[string]*pdf.Font) argument is optional
-		// If you pass nil, it will use the default fonts
-		// A example of fonts values would be:
-		// fonts := map[string]*pdf.Font{
-		// 	"F1": pdf.NewFont("Helvetica", 12),
-		// 	"F2": pdf.NewFont("Times-Roman", 12),
-		// }
-		pageText, err := page.GetPlainText(nil) // Pass nil as font map to use default fonts
+		// ExtractText extracts the text content from the page
+		pageText, err := ex.ExtractText()
 		if err != nil {
 			LogWarn("Failed to extract text from page", "page", pageNum, "error", err)
 			continue
