@@ -9,10 +9,10 @@ import (
 
 func TestLoadConfig(t *testing.T) {
 	tests := []struct {
-		name        string
 		envVars     map[string]string
-		expectError bool
 		checkFunc   func(*testing.T, *Config)
+		name        string
+		expectError bool
 	}{
 		{
 			name: "Valid OpenAI configuration",
@@ -160,10 +160,10 @@ func TestLoadConfig(t *testing.T) {
 
 func TestConfigValidation(t *testing.T) {
 	tests := []struct {
-		name        string
 		config      *Config
-		expectError bool
+		name        string
 		errorMsg    string
+		expectError bool
 	}{
 		{
 			name: "Valid configuration",

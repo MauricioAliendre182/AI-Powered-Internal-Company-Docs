@@ -55,6 +55,8 @@ func RegisterRoutes(server *gin.Engine) {
 	profile := authenticated.Group("/auth")
 	{
 		profile.GET("/profile", getOwnProfile)
+		profile.GET("/user", getUser)
+		profile.GET("/users", getAllUsers)
 	}
 
 	// Alternative profile endpoint

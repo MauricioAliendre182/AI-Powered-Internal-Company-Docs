@@ -11,8 +11,8 @@ import (
 
 // RAGService handles Retrieval-Augmented Generation using the factory pattern
 type RAGService struct {
-	MaxChunks   int
 	chatService utils.ChatService
+	MaxChunks   int
 }
 
 // NewRAGService creates a new RAG service using the factory pattern

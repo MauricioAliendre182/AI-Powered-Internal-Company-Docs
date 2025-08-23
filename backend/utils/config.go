@@ -5,37 +5,27 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
 )
 
 // Config holds application configuration
 type Config struct {
-	// Database
-	DBHost     string
-	DBPort     string
-	DBUser     string
-	DBPassword string
-	DBName     string
-
-	// AI Configuration (supports OpenAI, Google AI, and Ollama)
-	UseLocalAI     bool
-	OpenAIAPIKey   string
-	GoogleAIAPIKey string
-	OllamaBaseURL  string
-	EmbeddingModel string
-	ChatModel      string
-
-	// Application
-	Environment string
-	Port        string
-
-	// File upload limits
-	MaxFileSize int64
-	ChunkSize   int64
-
-	// Rate limiting
+	OllamaBaseURL       string
+	Port                string
+	DBUser              string
+	DBPassword          string
+	DBName              string
+	ChatModel           string
+	OpenAIAPIKey        string
+	GoogleAIAPIKey      string
+	DBPort              string
+	EmbeddingModel      string
+	DBHost              string
+	Environment         string
+	MaxFileSize         int64
+	ChunkSize           int64
 	RateLimitMaxTokens  int64
 	RateLimitRefillRate int64
+	UseLocalAI          bool
 }
 
 // LoadConfig loads configuration from environment variables with fallbacks
@@ -98,16 +88,6 @@ func getEnvWithDefault(key, defaultValue string) string {
 func getEnvIntWithDefault(key string, defaultValue int64) int64 {
 	if value := os.Getenv(key); value != "" {
 		if parsed, err := strconv.ParseInt(value, 10, 64); err == nil {
-			return parsed
-		}
-	}
-	return defaultValue
-}
-
-// getEnvDurationWithDefault returns environment variable as duration or default
-func getEnvDurationWithDefault(key string, defaultValue time.Duration) time.Duration {
-	if value := os.Getenv(key); value != "" {
-		if parsed, err := time.ParseDuration(value); err == nil {
 			return parsed
 		}
 	}

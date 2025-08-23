@@ -9,6 +9,7 @@ A comprehensive AI-powered document management and retrieval system that enables
 - **Multiple AI Providers**: Factory pattern supporting OpenAI, Google AI (Gemini), and Ollama (local AI)
 - **Semantic Search**: Vector-based similarity search using pgvector extension
 - **User Management**: JWT-based authentication and user management
+- **Admin System**: Environment-based admin user configuration with role-based access
 - **Responsive UI**: Modern Angular frontend with FontAwesome icons
 - **Real-time Processing**: Chunking and embedding generation for uploaded documents
 
@@ -660,6 +661,9 @@ RATE_LIMIT_REFILL_RATE=1
 # JWT Configuration
 JWT_SECRET=YourSuperSecretJWT_Key_2024!x9P3qR7sT1vW5zX8aB4cD6eF2gH
 
+# Admin Configuration
+ADMIN_EMAILS=admin@company.com,ceo@company.com,manager@company.com
+
 # Email Configuration (Optional)
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
@@ -695,6 +699,9 @@ RATE_LIMIT_REFILL_RATE=1
 
 # JWT Configuration
 JWT_SECRET=YourSuperSecretJWT_Key_2024!x9P3qR7sT1vW5zX8aB4cD6eF2gH
+
+# Admin Configuration
+ADMIN_EMAILS=admin@company.com,ceo@company.com,manager@company.com
 
 # Email Configuration (Optional)
 SMTP_HOST=smtp.gmail.com
@@ -733,6 +740,9 @@ RATE_LIMIT_REFILL_RATE=1
 # JWT Configuration
 JWT_SECRET=YourSuperSecretJWT_Key_2024!x9P3qR7sT1vW5zX8aB4cD6eF2gH
 
+# Admin Configuration
+ADMIN_EMAILS=admin@company.com,ceo@company.com,manager@company.com
+
 # Email Configuration (Optional)
 SMTP_HOST=smtp.gmail.com
 SMTP_PORT=587
@@ -755,7 +765,12 @@ SMTP_PASSWORD=your_app_password
    - Use a strong password for production
    - Match this with your PostgreSQL setup
 
-4. **Email Configuration**: 
+4. **Admin Configuration**: 
+   - Set `ADMIN_EMAILS` with comma-separated email addresses
+   - Users with these emails will have admin privileges
+   - Example: `ADMIN_EMAILS=admin@company.com,ceo@company.com`
+
+5. **Email Configuration**: 
    - Optional, only needed for password reset functionality
    - Use app-specific passwords for Gmail
 
@@ -969,6 +984,12 @@ CHUNK_SIZE=1000                     # Characters per chunk
 JWT_SECRET=your_jwt_secret_key
 ```
 
+#### Admin Configuration
+```env
+# Admin Users (comma-separated email addresses)
+ADMIN_EMAILS=admin@company.com,ceo@company.com,manager@company.com
+```
+
 #### Rate Limiting
 ```env
 RATE_LIMIT_MAX_TOKENS=10
@@ -998,6 +1019,13 @@ GET    /api/v1/documents/:id/chunks # Get document chunks
 ### RAG Query
 ```
 POST /api/v1/query              # Query documents with AI
+```
+
+### Admin Features
+```
+# Admin status is automatically set in JWT context
+# Access in route handlers via context.Get("isAdmin")
+# Configure admin users via ADMIN_EMAILS environment variable
 ```
 
 ### Health & Monitoring
@@ -1229,7 +1257,63 @@ The guardrail system provides multiple layers of protection:
 - **Password Hashing** using bcrypt
 - **SQL Injection Protection** with parameterized queries
 
-## 📊 Monitoring & Observability
+## � Admin Functionality
+
+The system includes a comprehensive admin system that allows certain users to have elevated privileges based on their email addresses.
+
+### 🔧 Configuration
+
+Admin users are configured using the `ADMIN_EMAILS` environment variable:
+
+```env
+# Single admin
+ADMIN_EMAILS=admin@company.com
+
+# Multiple admins (comma-separated)
+ADMIN_EMAILS=admin@company.com,ceo@company.com,manager@company.com
+```
+
+### 🔍 How It Works
+
+1. **Authentication Middleware**: When users authenticate, the system automatically checks their admin status
+2. **Email-Based**: Admin status is determined by matching the user's email against the configured admin emails
+3. **Context Storage**: Admin status is stored in the request context as `isAdmin` for use by route handlers
+4. **Real-time Lookup**: The system performs a database lookup to get the user's current email, ensuring accuracy
+
+### 🛠️ Implementation Details
+
+#### Core Functions
+- `CheckIfAdmin(userID string) bool` - Main function to check admin status
+- `getUserEmailByID(userID string)` - Helper to retrieve user email from database  
+- `getAdminEmails()` - Helper to parse admin emails from environment
+
+#### Usage in Route Handlers
+```go
+func adminOnlyRoute(context *gin.Context) {
+    isAdmin, exists := context.Get("isAdmin")
+    if !exists || !isAdmin.(bool) {
+        context.JSON(http.StatusForbidden, gin.H{
+            "message": "Admin access required",
+        })
+        return
+    }
+    
+    // Admin-only logic here
+}
+```
+
+### 🔒 Security Features
+
+- **Case-Insensitive**: Email comparison uses `strings.EqualFold()` for case-insensitive matching
+- **Environment-Based**: Admin emails stored in environment variables, not in code
+- **Fail-Safe**: Returns `false` if any errors occur during the check
+- **Real-Time**: Database lookup ensures current user data is used
+
+### 📝 Documentation
+
+For detailed setup instructions and examples, see [ADMIN_SETUP.md](backend/ADMIN_SETUP.md).
+
+## �📊 Monitoring & Observability
 
 ### Health Checks
 - System health endpoints for load balancers

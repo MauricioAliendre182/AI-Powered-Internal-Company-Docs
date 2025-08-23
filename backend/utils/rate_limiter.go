@@ -7,10 +7,10 @@ import (
 
 // RateLimiter implements a simple token bucket rate limiter
 type RateLimiter struct {
+	lastRefill time.Time
 	tokens     int64
 	maxTokens  int64
 	refillRate int64
-	lastRefill time.Time
 	mutex      sync.Mutex
 }
 

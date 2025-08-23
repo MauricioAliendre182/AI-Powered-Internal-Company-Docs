@@ -212,8 +212,8 @@ type geminiChatRequest struct {
 
 // Gemini content structure for chat requests
 type geminiContent struct {
-	Parts []geminiPart `json:"parts"`
 	Role  string       `json:"role,omitempty"`
+	Parts []geminiPart `json:"parts"`
 }
 
 // Gemini part structure for chat responses
@@ -225,12 +225,12 @@ type geminiPart struct {
 // This structure is used to parse the response from the Gemini chat API
 type geminiChatResponse struct {
 	Candidates []struct {
-		Content struct {
+		FinishReason string `json:"finishReason"`
+		Content      struct {
 			Parts []struct {
 				Text string `json:"text"`
 			} `json:"parts"`
 		} `json:"content"`
-		FinishReason string `json:"finishReason"`
 	} `json:"candidates"`
 }
 

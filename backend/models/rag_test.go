@@ -74,10 +74,10 @@ func TestRAGService_QueryDocuments(t *testing.T) {
 	tests := []struct {
 		name           string
 		question       string
-		mockEmbedding  utils.Vector
-		mockChunks     []Chunk
 		mockResponse   string
 		expectedResult string
+		mockEmbedding  utils.Vector
+		mockChunks     []Chunk
 		expectError    bool
 	}{
 		{
@@ -348,8 +348,8 @@ func TestNewRAGService(t *testing.T) {
 	originalConfig := utils.AppConfig
 
 	tests := []struct {
-		name        string
 		config      *utils.Config
+		name        string
 		expectError bool
 	}{
 		{

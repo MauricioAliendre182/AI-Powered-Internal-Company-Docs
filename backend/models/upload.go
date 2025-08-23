@@ -16,29 +16,29 @@ import (
 
 // Document represents a document in the documents table
 type Document struct {
-	ID               uuid.UUID `json:"id"`
+	UploadedAt       time.Time `json:"uploaded_at"`
 	Name             string    `json:"name"`
 	OriginalFilename string    `json:"original_filename"`
-	UploadedAt       time.Time `json:"uploaded_at"`
+	ID               uuid.UUID `json:"id"`
 }
 
 // Chunk represents a chunk in the chunks table
 type Chunk struct {
-	ID          uuid.UUID    `json:"id"`
-	DocumentID  uuid.UUID    `json:"document_id"`
-	Size        int64        `json:"size"`
 	ContentType string       `json:"content_type"`
 	Content     string       `json:"content"`
 	Embedding   utils.Vector `json:"embedding"`
+	Size        int64        `json:"size"`
 	ChunkIndex  int          `json:"chunk_index"`
+	ID          uuid.UUID    `json:"id"`
+	DocumentID  uuid.UUID    `json:"document_id"`
 }
 
 // DocumentResponse for API responses
 type DocumentResponse struct {
-	ID               uuid.UUID `json:"id"`
+	UploadedAt       time.Time `json:"uploaded_at"`
 	Name             string    `json:"name"`
 	OriginalFilename string    `json:"original_filename"`
-	UploadedAt       time.Time `json:"uploaded_at"`
+	ID               uuid.UUID `json:"id"`
 }
 
 // ReadFromUpload reads the uploaded file and populates the Document struct
@@ -451,9 +451,7 @@ func ProcessFileToChunks(fileHeader *multipart.FileHeader, documentID uuid.UUID,
 	// Get embeddings for all chunks
 	// utils.GetBatchEmbeddings is a utility function that takes a slice of strings and returns
 	var chunkTexts []string
-	for _, chunkText := range chunks {
-		chunkTexts = append(chunkTexts, chunkText)
-	}
+	chunkTexts = append(chunkTexts, chunks...)
 
 	embeddings, err := utils.GetBatchEmbeddings(chunkTexts)
 	if err != nil {

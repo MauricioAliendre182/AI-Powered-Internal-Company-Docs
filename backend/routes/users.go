@@ -270,7 +270,16 @@ func getUser(context *gin.Context) {
 }
 
 func getAllUsers(context *gin.Context) {
-	// Get all users from the database
+	// See if user is admin
+	isAdmin, exists := context.Get("isAdmin")
+	if !exists || !isAdmin.(bool) {
+		context.JSON(http.StatusForbidden, gin.H{
+			"message": "Admin access required",
+		})
+		return
+	}
+
+	// Get all users from the database just if the user is admin
 	users, err := models.GetAllUsers()
 	if err != nil {
 		context.JSON(http.StatusInternalServerError, gin.H{

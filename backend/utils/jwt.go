@@ -121,7 +121,6 @@ func validateTokenWithType(token string) (string, string, error) {
 	// and nil if there is no error
 	// this is to avoid having a harcoded UserId in routes/events.go
 	return userId, tokenType, nil
-
 }
 
 // GenerateTokenPair generates both access and refresh tokens

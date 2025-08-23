@@ -69,9 +69,9 @@ func setupTestConfig() {
 
 func TestHealthCheck(t *testing.T) {
 	tests := []struct {
+		checkResponse  func(*testing.T, *httptest.ResponseRecorder)
 		name           string
 		expectedStatus int
-		checkResponse  func(*testing.T, *httptest.ResponseRecorder)
 	}{
 		{
 			name:           "Health check returns OK",
@@ -93,7 +93,7 @@ func TestHealthCheck(t *testing.T) {
 			router.GET("/health", healthCheck)
 
 			// Create request
-			req := httptest.NewRequest("GET", "/health", nil)
+			req := httptest.NewRequest("GET", "/health", http.NoBody)
 			w := httptest.NewRecorder()
 
 			// Perform request
@@ -116,9 +116,9 @@ func TestUploadDocument(t *testing.T) {
 		fileContent    string
 		fileName       string
 		contentType    string
-		setupAuth      bool
-		expectedStatus int
 		expectedError  string
+		expectedStatus int
+		setupAuth      bool
 	}{
 		{
 			name:           "Valid PDF upload",
@@ -243,11 +243,11 @@ func TestUploadDocument(t *testing.T) {
 
 func TestQueryDocuments(t *testing.T) {
 	tests := []struct {
-		name           string
 		requestBody    map[string]interface{}
-		setupAuth      bool
-		expectedStatus int
+		name           string
 		expectedError  string
+		expectedStatus int
+		setupAuth      bool
 	}{
 		{
 			name: "Valid query",
@@ -353,10 +353,10 @@ func TestQueryDocuments(t *testing.T) {
 func TestGetDocuments(t *testing.T) {
 	tests := []struct {
 		name           string
-		setupAuth      bool
 		queryParams    string
-		expectedStatus int
 		expectedError  string
+		expectedStatus int
+		setupAuth      bool
 	}{
 		{
 			name:           "Get documents successfully",
@@ -412,7 +412,7 @@ func TestGetDocuments(t *testing.T) {
 			protected.GET("/documents", getDocuments)
 
 			// Create request
-			req := httptest.NewRequest("GET", "/api/v1/documents"+tt.queryParams, nil)
+			req := httptest.NewRequest("GET", "/api/v1/documents"+tt.queryParams, http.NoBody)
 
 			// Add authorization header if needed
 			if tt.setupAuth {
@@ -443,7 +443,7 @@ func BenchmarkHealthCheck(b *testing.B) {
 	router.GET("/health", healthCheck)
 
 	for i := 0; i < b.N; i++ {
-		req := httptest.NewRequest("GET", "/health", nil)
+		req := httptest.NewRequest("GET", "/health", http.NoBody)
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 	}

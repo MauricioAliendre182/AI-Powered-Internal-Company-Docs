@@ -9,12 +9,12 @@ import (
 
 func TestValidateQuestion(t *testing.T) {
 	tests := []struct {
+		config        *GuardrailConfig
 		name          string
 		question      string
-		config        *GuardrailConfig
+		violationType string
 		expectError   bool
 		expectWarning bool
-		violationType string
 	}{
 		{
 			name:        "Valid question",
@@ -342,8 +342,8 @@ func TestValidateResponse(t *testing.T) {
 	tests := []struct {
 		name            string
 		response        string
-		expectViolation bool
 		violationType   string
+		expectViolation bool
 	}{
 		{
 			name:            "Good response",

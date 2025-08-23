@@ -35,8 +35,8 @@ func TestMain(m *testing.M) {
 
 func TestApplicationStartup(t *testing.T) {
 	tests := []struct {
-		name        string
 		envVars     map[string]string
+		name        string
 		expectPanic bool
 	}{
 		{
@@ -217,8 +217,8 @@ func TestConfigurationValidation(t *testing.T) {
 
 	t.Run("AI provider configuration validation", func(t *testing.T) {
 		aiConfigs := []struct {
-			name   string
 			config map[string]string
+			name   string
 			valid  bool
 		}{
 			{

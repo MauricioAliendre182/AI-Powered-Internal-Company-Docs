@@ -41,6 +41,10 @@ func Authenticate(context *gin.Context) {
 	// This is how we can pass data between middleware and request handlers
 	context.Set("userId", userId)
 
+	// TODO: Check if the user is an admin
+	isAdmin := utils.CheckIfAdmin(userId)
+	context.Set("isAdmin", isAdmin)
+
 	// Continue with the request (the next request handler)
 	context.Next()
 }

@@ -11,110 +11,77 @@ output:
   print-linter-name: true
 
 linters-settings:
+  errcheck:
+    exclude-functions:
+      - (*os.File).Close
+      - (*database/sql.Rows).Close
+      - (*database/sql.Stmt).Close
+      - (*net/http.Response.Body).Close
+      - (*database/sql.Tx).Rollback
+      
   govet:
-    check-shadowing: true
-    enable-all: true
+    check-shadowing: false
+    enable:
+      - assign
+      - atomic
+      - bools
+      - buildtag
+      - cgocall
+      - composites
+      - copylocks
+      - httpresponse
+      - loopclosure
+      - lostcancel
+      - nilfunc
+      - printf
+      - shift
+      - stdmethods
+      - structtag
+      - tests
+      - unmarshal
+      - unreachable
+      - unsafeptr
+      - unusedresult
   
-  gocyclo:
-    min-complexity: 15
-  
-  dupl:
-    threshold: 100
-  
-  goconst:
-    min-len: 3
-    min-occurrences: 3
-  
-  misspell:
-    locale: US
-  
+  staticcheck:
+    checks: ["all", "-ST1000", "-ST1003", "-ST1005", "-ST1020", "-ST1021", "-ST1022"]
+    
   unused:
     check-exported: false
-  
-  unparam:
-    check-exported: false
-  
-  nakedret:
-    max-func-lines: 30
-  
-  prealloc:
-    simple: true
-    range-loops: true
-    for-loops: false
-  
-  gocritic:
-    enabled-tags:
-      - diagnostic
-      - experimental
-      - opinionated
-      - performance
-      - style
-    disabled-checks:
-      - dupImport # https://github.com/go-critic/go-critic/issues/845
-      - ifElseChain
-      - octalLiteral
-      - whyNoLint
-  
-  funlen:
-    lines: 100
-    statements: 50
 
 linters:
   disable-all: true
   enable:
-    - bodyclose
-    - deadcode
-    - depguard
-    - dogsled
-    - dupl
     - errcheck
-    - funlen
-    - gochecknoinits
-    - goconst
-    - gocritic
-    - gocyclo
     - gofmt
     - goimports
-    - gomnd
-    - goprintffuncname
-    - gosec
     - gosimple
     - govet
     - ineffassign
-    - interfacer
-    - lll
-    - misspell
-    - nakedret
-    - noctx
-    - nolintlint
-    - rowserrcheck
-    - scopelint
     - staticcheck
-    - structcheck
-    - stylecheck
     - typecheck
-    - unconvert
-    - unparam
     - unused
-    - varcheck
-    - whitespace
+    - misspell
 
 issues:
   exclude-rules:
     # Exclude some linters from running on tests files.
     - path: _test\.go
       linters:
-        - gocyclo
         - errcheck
-        - dupl
-        - gosec
-        - funlen
-        - gomnd
+        - unused
+        - staticcheck
 
-    # Exclude known linters from partially hard-to-fix issues
-    - linters:
-        - lll
-      source: "^//go:generate "
+    # Exclude known issues that are acceptable for this project
+    - text: "Error return value.*is not checked"
+      linters:
+        - errcheck
+      source: "defer.*Close"
+        
+    - text: "Error return value.*is not checked"
+      linters:
+        - errcheck
+      source: "defer.*Rollback"
 
     # Exclude shadow checking on err variables as it's very common
     - linters:

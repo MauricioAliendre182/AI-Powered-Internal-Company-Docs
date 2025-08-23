@@ -11,10 +11,10 @@ import (
 
 // HealthStatus represents the health check response
 type HealthStatus struct {
+	Services  map[string]string `json:"services"`
 	Status    string            `json:"status"`
 	Timestamp string            `json:"timestamp"`
 	Version   string            `json:"version"`
-	Services  map[string]string `json:"services"`
 }
 
 // healthCheck handles health check requests

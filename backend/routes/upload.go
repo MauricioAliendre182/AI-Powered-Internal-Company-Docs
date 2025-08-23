@@ -80,12 +80,7 @@ func uploadDocument(c *gin.Context) {
 		}
 
 		// Prepare response
-		response := models.DocumentResponse{
-			ID:               doc.ID,
-			Name:             doc.Name,
-			OriginalFilename: doc.OriginalFilename,
-			UploadedAt:       doc.UploadedAt,
-		}
+		response := models.DocumentResponse(doc)
 
 		utils.LogInfo("Document uploaded successfully",
 			"document_id", doc.ID.String(),

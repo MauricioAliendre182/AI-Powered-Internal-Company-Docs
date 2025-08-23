@@ -17,10 +17,10 @@ type GuardrailViolation struct {
 
 // GuardrailConfig holds configuration for content filtering
 type GuardrailConfig struct {
-	MaxQuestionLength    int      `json:"max_question_length"`
-	MinQuestionLength    int      `json:"min_question_length"`
 	AllowedTopics        []string `json:"allowed_topics"`
 	BlockedPhrases       []string `json:"blocked_phrases"`
+	MaxQuestionLength    int      `json:"max_question_length"`
+	MinQuestionLength    int      `json:"min_question_length"`
 	RequireDocumentFocus bool     `json:"require_document_focus"`
 	StrictMode           bool     `json:"strict_mode"`
 }
