@@ -125,7 +125,7 @@ jobs:
         fail_ci_if_error: false
 
     - name: Upload coverage HTML report
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: coverage-report-${{ matrix.go-version }}
         path: |
@@ -166,15 +166,31 @@ jobs:
       with:
         go-version: ${{ env.GO_VERSION }}
 
+    - name: Install gosec
+      run: go install github.com/securego/gosec/v2/cmd/gosec@latest
+
     - name: Run Gosec Security Scanner
-      uses: securecodewarrior/github-action-gosec@master
-      with:
-        args: '-fmt sarif -out gosec-results.sarif ./backend/...'
+      working-directory: ./backend
+      run: |
+        gosec -fmt sarif -out gosec-results.sarif ./...
+        gosec -fmt json -out gosec-results.json ./...
+        gosec ./...
 
     - name: Upload SARIF file
       uses: github/codeql-action/upload-sarif@v2
       with:
-        sarif_file: gosec-results.sarif
+        sarif_file: ./backend/gosec-results.sarif
+      continue-on-error: true
+
+    - name: Upload security scan results
+      uses: actions/upload-artifact@v4
+      with:
+        name: security-scan-results
+        path: |
+          ./backend/gosec-results.sarif
+          ./backend/gosec-results.json
+        retention-days: 30
+      continue-on-error: true
 
   build:
     name: Build
