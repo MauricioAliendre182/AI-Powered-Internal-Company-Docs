@@ -71,4 +71,7 @@ func RegisterRoutes(server *gin.Engine) {
 
 	// RAG query endpoint (authenticated)
 	authenticated.POST("/query", queryDocuments)
+
+	// Guardrail status endpoint (authenticated)
+	authenticated.GET("/guardrails/status", getGuardrailStatus)
 }

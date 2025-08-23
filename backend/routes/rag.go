@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/MauricioAliendre182/backend/models"
+	"github.com/MauricioAliendre182/backend/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -74,7 +75,7 @@ import (
 // 	})
 // }
 
-// queryDocuments handles RAG queries
+// queryDocuments handles RAG queries with security guardrails
 func queryDocuments(c *gin.Context) {
 	// Get query from request
 	type QueryRequest struct {
@@ -87,6 +88,34 @@ func queryDocuments(c *gin.Context) {
 		return
 	}
 
+	// Sanitize the question
+	sanitizedQuestion := utils.SanitizeQuestion(req.Question)
+
+	// Validate question with guardrails
+	violations := utils.ValidateQuestion(sanitizedQuestion, utils.DefaultGuardrailConfig())
+
+	// Check for error-level violations
+	for _, violation := range violations {
+		if violation.Severity == "error" {
+			// Log the violation for security monitoring
+			utils.LogGuardrailViolation(violation, getUserID(c), sanitizedQuestion)
+
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error":       violation.Message,
+				"type":        violation.Type,
+				"suggestions": violation.Suggestions,
+			})
+			return
+		}
+	}
+
+	// Log warning-level violations but continue processing
+	for _, violation := range violations {
+		if violation.Severity == "warning" {
+			utils.LogGuardrailViolation(violation, getUserID(c), sanitizedQuestion)
+		}
+	}
+
 	// Perform RAG query
 	ragService, err := models.NewRAGService()
 	if err != nil {
@@ -94,16 +123,48 @@ func queryDocuments(c *gin.Context) {
 		return
 	}
 
-	answer, err := ragService.QueryDocuments(req.Question)
+	answer, err := ragService.QueryDocuments(sanitizedQuestion)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
+	// Validate the response
+	responseViolations := utils.ValidateResponse(answer)
+	if len(responseViolations) > 0 {
+		utils.LogWarn("Response validation violations detected",
+			"user_id", getUserID(c),
+			"question", sanitizedQuestion,
+			"violations", len(responseViolations),
+		)
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"question": req.Question,
+		"question": sanitizedQuestion,
 		"answer":   answer,
+		"warnings": getWarnings(violations),
 	})
+}
+
+// getUserID extracts user ID from context, returns "anonymous" if not found
+func getUserID(c *gin.Context) string {
+	if userID, exists := c.Get("user_id"); exists {
+		if id, ok := userID.(string); ok {
+			return id
+		}
+	}
+	return "anonymous"
+}
+
+// getWarnings extracts warning messages from violations
+func getWarnings(violations []utils.GuardrailViolation) []string {
+	var warnings []string
+	for _, violation := range violations {
+		if violation.Severity == "warning" {
+			warnings = append(warnings, violation.Message)
+		}
+	}
+	return warnings
 }
 
 // getDocuments returns all documents
@@ -180,5 +241,13 @@ func getDocumentChunks(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"document_id": documentID,
 		"chunks":      chunks,
+	})
+}
+
+// getGuardrailStatus returns the current guardrail configuration
+func getGuardrailStatus(c *gin.Context) {
+	status := utils.GetGuardrailStatus()
+	c.JSON(http.StatusOK, gin.H{
+		"status": status,
 	})
 }

@@ -85,20 +85,26 @@ func (r *RAGService) QueryDocuments(question string) (string, error) {
 		contextBuilder.WriteString(fmt.Sprintf("Document %d:\n%s\n\n", i+1, chunk.Content))
 	}
 
-	// Step 4: Generate response using the configured AI service
+	// Step 4: Generate response using the configured AI service with guardrails
 	utils.LogInfo("Generating AI response", "context_length", contextBuilder.Len())
 	contextText := contextBuilder.String()
 
 	// Count tokens in the context text
 	// This helps in understanding the context size and ensuring it fits within the model's limits
-	tokens, err := utils.CountTokens(contextText, "gpt-4")
+	tokens, err := utils.CountTokens(contextText, utils.AppConfig.EmbeddingModel)
 	if err != nil {
 		utils.LogError("Failed to count tokens", err)
 	} else {
 		utils.LogInfo("Context token count", "tokens", tokens)
 	}
 
-	return r.chatService.GenerateResponse(question, contextText)
+	// Create a safe prompt that includes guardrails
+	safePrompt := utils.CreateSafePrompt(question, contextText)
+	utils.LogInfo("Created safe prompt", "prompt_length", len(safePrompt))
+
+	// Use the safe prompt as the question parameter and empty context
+	// The context is already included in the safe prompt
+	return r.chatService.GenerateResponse(safePrompt, "")
 }
 
 // cleanEmbeddingVector removes any non-float data from embedding vectors
