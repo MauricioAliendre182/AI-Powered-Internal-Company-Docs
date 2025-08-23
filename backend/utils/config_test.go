@@ -114,10 +114,17 @@ func TestLoadConfig(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Save original environment
+			// Save original environment for all config-related variables
+			configKeys := []string{
+				"DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME",
+				"OPENAI_API_KEY", "GOOGLE_AI_API_KEY", "USE_LOCAL_AI", "OLLAMA_BASE_URL",
+				"EMBEDDING_MODEL", "CHAT_MODEL", "ENVIRONMENT", "PORT", "JWT_SECRET",
+			}
+
 			originalEnv := make(map[string]string)
-			for key := range tt.envVars {
+			for _, key := range configKeys {
 				originalEnv[key] = os.Getenv(key)
+				os.Unsetenv(key) // Clear all config variables first
 			}
 
 			// Set test environment variables

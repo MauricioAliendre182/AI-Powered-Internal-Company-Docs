@@ -20,13 +20,13 @@ var AllowedFileTypes = map[string]bool{
 
 // AllowedMimeTypes defines the supported MIME types
 var AllowedMimeTypes = map[string]bool{
-	"text/plain":                                                   true,
-	"text/markdown":                                                true,
-	"application/pdf":                                              true,
-	"application/msword":                                           true,
+	"text/plain":         true,
+	"text/markdown":      true,
+	"application/pdf":    true,
+	"application/msword": true,
 	"application/vnd.openxmlformats-officedocument.wordprocessingml.document": true,
-	"application/rtf":                                              true,
-	"application/vnd.oasis.opendocument.text":                      true,
+	"application/rtf":                         true,
+	"application/vnd.oasis.opendocument.text": true,
 }
 
 // ValidateFileType validates if the uploaded file type is allowed
