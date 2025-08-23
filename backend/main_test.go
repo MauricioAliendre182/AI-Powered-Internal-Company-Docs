@@ -15,7 +15,7 @@ func TestMain(m *testing.M) {
 	os.Setenv("DB_NAME", "test_internal_docs")
 	os.Setenv("LOG_LEVEL", "error")
 	os.Setenv("JWT_SECRET", "test-secret-for-testing")
-	
+
 	// Set a default AI provider for tests that need it
 	os.Setenv("OPENAI_API_KEY", "sk-test-key-for-testing")
 
@@ -59,8 +59,9 @@ func TestApplicationStartup(t *testing.T) {
 			envVars: map[string]string{
 				"OPENAI_API_KEY": "sk-test-key",
 				"PORT":           "8090",
+				// DB_PASSWORD is missing, which should cause an error
 			},
-			expectPanic: true,
+			expectPanic: true, // LoadConfig will return error, which we convert to panic
 		},
 		{
 			name: "Missing AI configuration",
@@ -87,6 +88,16 @@ func TestApplicationStartup(t *testing.T) {
 			for key := range tt.envVars {
 				originalEnv[key] = os.Getenv(key)
 				os.Unsetenv(key)
+			}
+
+			// Also clear database environment variables for clean test
+			dbKeys := []string{"DB_HOST", "DB_PORT", "DB_USER", "DB_PASSWORD", "DB_NAME"}
+			originalDBEnv := make(map[string]string)
+			for _, key := range dbKeys {
+				if _, exists := tt.envVars[key]; !exists { // Only clear if not in test config
+					originalDBEnv[key] = os.Getenv(key)
+					os.Unsetenv(key)
+				}
 			}
 
 			// Also clear AI-related environment variables for clean test
@@ -134,7 +145,16 @@ func TestApplicationStartup(t *testing.T) {
 					os.Setenv(key, originalValue)
 				}
 			}
-			
+
+			// Restore DB environment
+			for key, originalValue := range originalDBEnv {
+				if originalValue == "" {
+					os.Unsetenv(key)
+				} else {
+					os.Setenv(key, originalValue)
+				}
+			}
+
 			// Restore AI environment
 			for key, originalValue := range originalAIEnv {
 				if originalValue == "" {
@@ -174,11 +194,11 @@ func TestConfigurationValidation(t *testing.T) {
 				for _, key := range aiKeys {
 					os.Unsetenv(key)
 				}
-				
+
 				// Set minimal AI config to satisfy validation
 				os.Setenv("OPENAI_API_KEY", "sk-test-key")
 				defer os.Unsetenv("OPENAI_API_KEY")
-				
+
 				for key, value := range config {
 					os.Setenv(key, value)
 					defer os.Unsetenv(key)
@@ -291,7 +311,7 @@ func TestEnvironmentSpecificBehavior(t *testing.T) {
 			os.Setenv("DB_PASSWORD", "test_password")
 			os.Setenv("JWT_SECRET", "test-secret")
 			os.Setenv("OPENAI_API_KEY", "sk-test-key")
-			
+
 			defer func() {
 				os.Unsetenv("ENVIRONMENT")
 				os.Unsetenv("DB_PASSWORD")
@@ -302,7 +322,7 @@ func TestEnvironmentSpecificBehavior(t *testing.T) {
 			config, err := utils.LoadConfig()
 			assert.NoError(t, err)
 			assert.NotNil(t, config)
-			
+
 			if config != nil {
 				assert.Equal(t, env, config.Environment)
 
