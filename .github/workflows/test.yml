@@ -116,14 +116,6 @@ jobs:
         go test -race -coverprofile coverage.out -covermode atomic ./...
         go tool cover -html coverage.out -o coverage.html
 
-    - name: Upload coverage reports to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./backend/coverage.out
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: false
-
     - name: Upload coverage HTML report
       uses: actions/upload-artifact@v4
       with:
@@ -178,7 +170,7 @@ jobs:
       continue-on-error: true
 
     - name: Upload SARIF file
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v3
       with:
         sarif_file: ./backend/gosec-results.sarif
       continue-on-error: true
