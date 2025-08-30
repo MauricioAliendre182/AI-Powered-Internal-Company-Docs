@@ -141,6 +141,43 @@ quick-lint: ## Quick lint without installing
 		echo "golangci-lint not installed. Run 'make lint-install' first."; \
 	fi
 
+# PromptFoo AI Testing Commands
+promptfoo-install: ## Install PromptFoo for AI testing
+	@echo "Installing PromptFoo..."
+	@if command -v npm >/dev/null 2>&1; then \
+		npm install -g promptfoo; \
+		echo "PromptFoo installed successfully"; \
+	else \
+		echo "❌ npm is not installed. Please install Node.js first."; \
+		exit 1; \
+	fi
+
+promptfoo-basic: promptfoo-install ## Run basic RAG functionality tests
+	@echo "Running basic PromptFoo tests..."
+	@if [ -f "promptfoo-config.yaml" ]; then \
+		promptfoo eval --config promptfoo-config.yaml; \
+	else \
+		echo "❌ promptfoo-config.yaml not found"; \
+		exit 1; \
+	fi
+
+promptfoo-report: ## View PromptFoo test results
+	@echo "Opening PromptFoo results..."
+	@if command -v promptfoo >/dev/null 2>&1; then \
+		promptfoo view; \
+	else \
+		echo "❌ PromptFoo not installed. Run 'make promptfoo-install' first."; \
+	fi
+
+promptfoo-clean: ## Clean PromptFoo test results
+	@echo "Cleaning PromptFoo results..."
+	@rm -rf promptfoo-results/ .promptfoo/
+	@echo "✅ PromptFoo results cleaned"
+
+promptfoo-test: ## Run PromptFoo integration tests (Go)
+	@echo "Running PromptFoo integration tests..."
+	go test -v -timeout=10m -run TestPromptFoo ./...
+
 # Help for environment setup
 env-help: ## Show environment setup help
 	@echo "Environment Variables for Local Development:"

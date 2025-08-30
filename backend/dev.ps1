@@ -16,6 +16,177 @@ function Write-Error { param($Message) Write-Host $Message -ForegroundColor Red 
 function Write-Warning { param($Message) Write-Host $Message -ForegroundColor Yellow }
 function Write-Info { param($Message) Write-Host $Message -ForegroundColor Cyan }
 
+# PromptFoo AI Testing Functions
+function Install-PromptFoo {
+    Write-Info "Installing PromptFoo for AI testing..."
+    
+    # Check if npm is available
+    try {
+        $npmVersion = npm --version
+        Write-Info "Found npm version: $npmVersion"
+    }
+    catch {
+        Write-Error "npm is not installed. Please install Node.js first."
+        Write-Info "Download Node.js from: https://nodejs.org/"
+        return $false
+    }
+    
+    # Check if PromptFoo is already installed
+    try {
+        $promptfooVersion = promptfoo --version
+        Write-Success "PromptFoo is already installed: $promptfooVersion"
+        return $true
+    }
+    catch {
+        Write-Info "PromptFoo not found, installing..."
+    }
+    
+    # Install PromptFoo globally
+    try {
+        Write-Info "Installing PromptFoo globally..."
+        npm install -g promptfoo
+        
+        # Verify installation
+        $promptfooVersion = promptfoo --version
+        Write-Success "PromptFoo installed successfully: $promptfooVersion"
+        return $true
+    }
+    catch {
+        Write-Error "Failed to install PromptFoo: $_"
+        return $false
+    }
+}
+
+function Test-PromptFooEnvironment {
+    Write-Info "Checking PromptFoo environment..."
+    
+    # Check for configuration file
+    if (-not (Test-Path "promptfoo-config.yaml")) {
+        Write-Error "PromptFoo configuration file not found: promptfoo-config.yaml"
+        return $false
+    }
+    
+    # Check for test data directory
+    if (-not (Test-Path "test-data")) {
+        Write-Error "Test data directory not found: test-data"
+        return $false
+    }
+    
+    # Check API keys (at least one should be available)
+    $hasOpenAI = $env:OPENAI_API_KEY -ne $null -and $env:OPENAI_API_KEY -ne ""
+    $hasGoogleAI = $env:GOOGLE_AI_API_KEY -ne $null -and $env:GOOGLE_AI_API_KEY -ne ""
+    $hasOllama = Test-OllamaConnection
+    
+    if (-not ($hasOpenAI -or $hasGoogleAI -or $hasOllama)) {
+        Write-Warning "No AI provider API keys found or Ollama not running"
+        Write-Info "Set OPENAI_API_KEY, GOOGLE_AI_API_KEY, or start Ollama service"
+        Write-Info "Tests may fail without proper AI provider configuration"
+    }
+    else {
+        Write-Success "AI provider environment validated"
+        if ($hasOpenAI) { Write-Info "[OK] OpenAI API key found" }
+        if ($hasGoogleAI) { Write-Info "[OK] Google AI API key found" }
+        if ($hasOllama) { Write-Info "[OK] Ollama service available" }
+    }
+    
+    return $true
+}
+
+function Test-OllamaConnection {
+    try {
+        # Test if Ollama service is running
+        $response = Invoke-RestMethod -Uri "http://localhost:11434/api/version" -TimeoutSec 3 -ErrorAction SilentlyContinue
+        return $response -ne $null
+    }
+    catch {
+        return $false
+    }
+}
+
+function Invoke-PromptFooBasic {
+    Write-Info "Running basic PromptFoo AI tests..."
+    
+    if (-not (Install-PromptFoo)) {
+        Write-Error "Failed to install PromptFoo"
+        return
+    }
+    
+    if (-not (Test-PromptFooEnvironment)) {
+        Write-Error "PromptFoo environment validation failed"
+        return
+    }
+    
+    try {
+        Write-Info "Executing PromptFoo evaluation..."
+        promptfoo eval --config promptfoo-config.yaml
+        
+        if ($LASTEXITCODE -eq 0) {
+            Write-Success "PromptFoo tests completed successfully"
+        }
+        else {
+            Write-Warning "PromptFoo tests completed with warnings (exit code: $LASTEXITCODE)"
+        }
+    }
+    catch {
+        Write-Error "Failed to run PromptFoo tests: $_"
+    }
+}
+
+function Invoke-PromptFooReport {
+    Write-Info "Opening PromptFoo test results..."
+    
+    if (-not (Test-Path "promptfoo-results")) {
+        Write-Warning "No PromptFoo results found. Run 'promptfoo-basic' first."
+        return
+    }
+    
+    try {
+        promptfoo view
+    }
+    catch {
+        Write-Error "Failed to open PromptFoo results: $_"
+        Write-Info "Try opening the results directory manually: promptfoo-results/"
+    }
+}
+
+function Clear-PromptFooResults {
+    Write-Info "Cleaning PromptFoo test results..."
+    
+    $resultDirs = @("promptfoo-results", ".promptfoo")
+    foreach ($dir in $resultDirs) {
+        if (Test-Path $dir) {
+            try {
+                Remove-Item $dir -Recurse -Force
+                Write-Success "Removed: $dir"
+            }
+            catch {
+                Write-Warning "Failed to remove $dir`: $($_.Exception.Message)"
+            }
+        }
+    }
+    
+    Write-Success "PromptFoo results cleaned"
+}
+
+function Invoke-PromptFooTest {
+    Write-Info "Running PromptFoo integration tests (Go)..."
+    
+    try {
+        # Run PromptFoo tests with specific build tag
+        go test -v -timeout=10m -tags="promptfoo" -run "TestPromptFoo" ./...
+        
+        if ($LASTEXITCODE -eq 0) {
+            Write-Success "PromptFoo integration tests passed"
+        }
+        else {
+            Write-Warning "PromptFoo integration tests completed with issues"
+        }
+    }
+    catch {
+        Write-Error "Failed to run PromptFoo integration tests: $_"
+    }
+}
+
 # Check if Go is installed
 function Test-GoInstallation {
     try {
@@ -58,32 +229,32 @@ function Install-DevTools {
 function Invoke-Tests {
     param([switch]$Verbose, [switch]$Coverage, [switch]$Individual)
     
-    Write-Info "Running tests..."
+    Write-Info "Running tests (excluding PromptFoo integration tests)..."
     
     if ($Individual) {
         Write-Info "Testing main package..."
-        go test -v -race -timeout=2m .
+        go test -v -race -timeout=2m -tags="!promptfoo" .
         
         Write-Info "Testing models package..."
-        go test -v -race -timeout=2m ./models
+        go test -v -race -timeout=2m -tags="!promptfoo" ./models
         
         Write-Info "Testing utils package..."
-        go test -v -race -timeout=2m ./utils
+        go test -v -race -timeout=2m -tags="!promptfoo" ./utils
         
         Write-Info "Testing routes package..."
-        go test -v -race -timeout=2m ./routes
+        go test -v -race -timeout=2m -tags="!promptfoo" ./routes
     }
     elseif ($Coverage) {
-        Write-Info "Running tests with coverage..."
-        go test -race -coverprofile=coverage.out -covermode=atomic ./...
+        Write-Info "Running tests with coverage (excluding PromptFoo)..."
+        go test -race -coverprofile=coverage.out -covermode=atomic -tags="!promptfoo" ./...
         go tool cover -html=coverage.out -o coverage.html
         Write-Success "Coverage report generated: coverage.html"
     }
     elseif ($Verbose) {
-        go test -v -race -timeout=2m ./...
+        go test -v -race -timeout=2m -tags="!promptfoo" ./...
     }
     else {
-        go test -race -timeout=2m ./...
+        go test -race -timeout=2m -tags="!promptfoo" ./...
     }
     
     if ($LASTEXITCODE -eq 0) {
@@ -299,6 +470,13 @@ function Show-Help {
     Write-Host "  test-individual      Run tests for each package individually"
     Write-Host "  test-guardrails      Test only guardrails functionality"
     Write-Host ""
+    Write-Host "PromptFoo AI Testing:" -ForegroundColor Yellow
+    Write-Host "  promptfoo-install    Install PromptFoo CLI globally"
+    Write-Host "  promptfoo-basic      Run basic PromptFoo tests (Phase 1)"
+    Write-Host "  promptfoo-report     Generate and open PromptFoo HTML report"
+    Write-Host "  promptfoo-clean      Clear PromptFoo results cache"
+    Write-Host "  promptfoo-test       Run Go integration tests for PromptFoo"
+    Write-Host ""
     Write-Host "Code Quality:" -ForegroundColor Yellow
     Write-Host "  lint                 Run linter"
     Write-Host "  lint-fix             Run linter with auto-fix"
@@ -307,7 +485,7 @@ function Show-Help {
     Write-Host "  fmt                  Format Go code"
     Write-Host "  vet                  Run go vet"
     Write-Host ""
-    Write-Host "Build & Run:" -ForegroundColor Yellow
+    Write-Host "Build `& Run:" -ForegroundColor Yellow
     Write-Host "  build                Build application"
     Write-Host "  build-debug          Build with debug information"
     Write-Host "  run                  Run application"
@@ -317,6 +495,13 @@ function Show-Help {
     Write-Host "  deps-verify          Verify dependencies"
     Write-Host "  deps-tidy            Tidy dependencies"
     Write-Host "  deps-update          Update dependencies"
+    Write-Host ""
+    Write-Host "AI Testing (PromptFoo):" -ForegroundColor Yellow
+    Write-Host "  promptfoo-install    Install PromptFoo for AI testing"
+    Write-Host "  promptfoo-basic      Run basic RAG and guardrail tests"
+    Write-Host "  promptfoo-report     View PromptFoo test results"
+    Write-Host "  promptfoo-clean      Clean PromptFoo test results"
+    Write-Host "  promptfoo-test       Run PromptFoo integration tests (Go)"
     Write-Host ""
     Write-Host "Docker:" -ForegroundColor Yellow
     Write-Host "  docker-build         Build Docker image"
@@ -375,6 +560,11 @@ switch ($Command.ToLower()) {
         Write-Info "Testing guardrails functionality..."
         go test -v -run ".*[Gg]uardrail.*" ./utils
     }
+    "promptfoo-install" { Install-PromptFoo }
+    "promptfoo-basic" { Invoke-PromptFooBasic }
+    "promptfoo-report" { Invoke-PromptFooReport }
+    "promptfoo-clean" { Clear-PromptFooResults }
+    "promptfoo-test" { Invoke-PromptFooTest }
     "lint" { Invoke-Lint }
     "lint-fix" { Invoke-Lint -Fix }
     "security" { Invoke-Security }

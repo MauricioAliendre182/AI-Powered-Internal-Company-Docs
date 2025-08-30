@@ -1,0 +1,19 @@
+# Basic RAG Test Cases for Phase 1
+# This file contains fundamental test cases for document-focused question answering
+# Each test case includes context (document content) and expected question patterns
+
+context,question,expected_keywords,should_not_contain,test_category
+"Employee Handbook: Vacation Policy
+All full-time employees receive 15 vacation days annually. Part-time employees receive pro-rated vacation based on hours worked. Vacation requests must be submitted 2 weeks in advance through the HR portal.","How many vacation days do full-time employees get?","15,vacation,full-time","I don't know,unsure","basic_policy"
+
+"Remote Work Guidelines:
+Employees may work remotely up to 3 days per week with manager approval. Remote work setup must include secure internet connection and company-approved equipment. All remote work must be pre-approved 24 hours in advance.","What are the remote work requirements?","3 days,manager approval,24 hours","unlimited,whenever","work_policy"
+
+"Security Policy:
+All employees must use multi-factor authentication (MFA) for company systems. Passwords must be at least 12 characters long and include special characters. Security training is mandatory quarterly.","What are the password requirements?","12 characters,special characters,MFA","8 characters,optional","security_policy"
+
+"Benefits Overview:
+Health insurance coverage begins after 30 days of employment. Company covers 80% of health premiums and 100% of dental premiums. Vision insurance is available with 50% company contribution.","When does health insurance start and what's the coverage?","30 days,80%,health","immediately,90%,100% health","benefits_policy"
+
+"Time Off Policy:
+Sick leave: 10 days annually. Personal days: 5 days annually. Bereavement leave: 3 days for immediate family. All time off must be recorded in the company system.","How many sick days are provided annually?","10 days,sick leave,annually","unlimited,15 days","time_off_policy"

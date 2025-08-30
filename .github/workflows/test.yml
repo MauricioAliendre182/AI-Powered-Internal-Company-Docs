@@ -68,18 +68,19 @@ jobs:
         DB_PORT: "5432"
         DB_USER: "postgres"
         DB_NAME: "test_db"
+        SKIP_PROMPTFOO_TESTS: "true"
       run: |
-        echo "Running unit tests for all packages..."
+        echo "Running unit tests for all packages (excluding PromptFoo integration tests)..."
         echo "Testing main package..."
-        go test -v -race -timeout=2m .
+        go test -v -race -timeout=2m -tags="!promptfoo" .
         echo "Testing models package..."
-        go test -v -race -timeout=2m ./models
+        go test -v -race -timeout=2m -tags="!promptfoo" ./models
         echo "Testing utils package..."
-        go test -v -race -timeout=2m ./utils
+        go test -v -race -timeout=2m -tags="!promptfoo" ./utils
         echo "Testing routes package..."
-        go test -v -race -timeout=2m ./routes
-        echo "Running all tests together..."
-        go test -v -race -timeout=5m ./...
+        go test -v -race -timeout=2m -tags="!promptfoo" ./routes
+        echo "Running all tests together (excluding PromptFoo)..."
+        go test -v -race -timeout=5m -tags="!promptfoo" ./...
 
     - name: Run benchmark tests
       working-directory: ./backend
@@ -111,9 +112,10 @@ jobs:
         DB_PORT: "5432"
         DB_USER: "postgres"
         DB_NAME: "test_db"
+        SKIP_PROMPTFOO_TESTS: "true"
       run: |
-        echo "Generating coverage report..."
-        go test -race -coverprofile coverage.out -covermode atomic ./...
+        echo "Generating coverage report (excluding PromptFoo integration tests)..."
+        go test -race -coverprofile coverage.out -covermode atomic -tags="!promptfoo" ./...
         go tool cover -html coverage.out -o coverage.html
 
     - name: Upload coverage HTML report
@@ -124,6 +126,53 @@ jobs:
           ./backend/coverage.out
           ./backend/coverage.html
         retention-days: 30
+
+  promptfoo-integration:
+    name: PromptFoo AI Tests (Optional)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[test-ai]')
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: Set up Node.js for PromptFoo
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Install PromptFoo
+      run: npm install -g promptfoo
+
+    - name: Run PromptFoo integration tests
+      working-directory: ./backend
+      env:
+        JWT_SECRET: "test-secret-key-for-testing-only"
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        GOOGLE_AI_API_KEY: ${{ secrets.GOOGLE_AI_API_KEY }}
+        ALLOWED_ORIGINS: "http://localhost:4200"
+        ENVIRONMENT: "test"
+        SKIP_PROMPTFOO_TESTS: "false"
+      run: |
+        echo "Running PromptFoo integration tests..."
+        go test -v -race -timeout=10m -tags="promptfoo" -run="TestPromptFoo" ./...
+      continue-on-error: true
+
+    - name: Upload PromptFoo results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: promptfoo-results
+        path: |
+          ./backend/promptfoo-results/
+          ./backend/.promptfoo/
+        retention-days: 7
+      continue-on-error: true
 
   lint:
     name: Lint
