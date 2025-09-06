@@ -403,6 +403,12 @@ ng test --include=**/my-component.spec.ts
 
 # Run tests without watching for changes
 ng test --no-watch
+
+# Run linter to check code quality
+npm run lint
+
+# Fix linting issues automatically
+npm run lint:fix
 ```
 
 ### Testing Best Practices
@@ -416,18 +422,18 @@ When testing Angular components, follow these best practices:
    describe('MyComponent', () => {
      let component: MyComponent;
      let fixture: ComponentFixture<MyComponent>;
-     
+
      beforeEach(async () => {
        await TestBed.configureTestingModule({
          imports: [MyComponent, /* other dependencies */],
          providers: [/* services */]
        }).compileComponents();
-       
+
        fixture = TestBed.createComponent(MyComponent);
        component = fixture.componentInstance;
        fixture.detectChanges();
      });
-     
+
      it('should create', () => {
        expect(component).toBeTruthy();
      });
@@ -448,7 +454,7 @@ When testing Angular components, follow these best practices:
      provideHttpClient(),
      provideHttpClientTesting()
    ]
-   
+
    // In test
    const httpTestingController = TestBed.inject(HttpTestingController);
    // Make HTTP request
@@ -491,12 +497,13 @@ The GitHub Actions workflow is designed for **fast, reliable CI** while keeping 
 #### **Core CI Jobs (Always Run)**
 ```yaml
 # .github/workflows/test.yml
-1. test              # Unit tests (Go) - excludes PromptFoo
-2. lint              # Code quality (golangci-lint)
+1. test              # Backend unit tests (Go) - excludes PromptFoo
+2. lint              # Backend code quality (golangci-lint)
 3. security          # Security scan (gosec)
-4. build             # Application build
+4. build             # Backend application build
 5. docker            # Docker image build test
-6. notify            # Results notification
+6. angular-test      # Frontend unit tests (Angular)
+7. notify            # Results notification
 ```
 
 #### **CI Test Exclusion Strategy**
@@ -549,7 +556,7 @@ git commit -m "Update RAG prompts [test-ai]"
 ```bash
 # Via GitHub Actions UI
 1. Go to Actions tab
-2. Select "Go Tests" workflow  
+2. Select "Go Tests" workflow
 3. Click "Run workflow"
 4. PromptFoo tests will execute
 ```
@@ -581,7 +588,7 @@ git commit -m "Update RAG prompts [test-ai]"
 
 ### 📊 **Testing Coverage Strategy**
 
-#### **Unit Tests (Always in CI)**
+#### **Backend Unit Tests (Always in CI)**
 ```go
 // Regular Go tests without build tags
 func TestGuardrailValidation(t *testing.T) {
@@ -589,8 +596,30 @@ func TestGuardrailValidation(t *testing.T) {
 }
 
 func TestUserAuthentication(t *testing.T) {
-    // Test auth without external dependencies  
+    // Test auth without external dependencies
 }
+```
+
+#### **Frontend Unit Tests (Always in CI)**
+```typescript
+// Angular component and service tests
+describe('MyComponent', () => {
+  it('should create the component', () => {
+    // Component creation test
+  });
+
+  it('should handle user actions correctly', () => {
+    // User interaction test
+  });
+});
+```
+
+Our Angular tests run automatically in the CI pipeline using Chrome Headless browser:
+```yaml
+# Run in GitHub Actions CI pipeline
+- name: Run unit tests
+  working-directory: ./frontend
+  run: npm test -- --no-watch --no-progress --browsers=ChromeHeadless
 ```
 
 #### **Integration Tests (Manual/Optional)**
@@ -620,6 +649,21 @@ GOOGLE_AI_API_KEY: ${{ secrets.GOOGLE_AI_API_KEY }}
 SKIP_PROMPTFOO_TESTS: "false"
 ```
 
+#### **Angular CI Configuration**
+```yaml
+# Frontend unit tests run in CI
+- name: Run unit tests
+  working-directory: ./frontend
+  run: npm test -- --no-watch --no-progress --browsers=ChromeHeadless
+
+- name: Upload test results
+  uses: actions/upload-artifact@v4
+  if: always()
+  with:
+    name: angular-test-results
+    path: ./frontend/coverage/
+```
+
 #### **Local Development**
 ```env
 # .env file for local development
@@ -630,12 +674,13 @@ USE_LOCAL_AI=true                       # For Ollama testing
 
 ### 🎨 **Benefits Summary**
 
-✅ **Fast CI**: Core pipeline runs in ~3 minutes  
-✅ **Reliable**: No external API dependencies in main flow  
-✅ **Comprehensive**: Full AI testing available when needed  
-✅ **Flexible**: Choose testing level based on changes  
-✅ **Cost-Effective**: Minimize AI API usage in CI  
-✅ **Developer-Friendly**: Quick local feedback loops  
+✅ **Fast CI**: Core pipeline runs in ~3 minutes
+✅ **Reliable**: No external API dependencies in main flow
+✅ **Comprehensive**: Full AI testing available when needed
+✅ **Flexible**: Choose testing level based on changes
+✅ **Cost-Effective**: Minimize AI API usage in CI
+✅ **Developer-Friendly**: Quick local feedback loops
+✅ **Full Stack Coverage**: Both backend (Go) and frontend (Angular) tests run automatically
 
 ### 🔄 **Testing Strategies by Change Type**
 
@@ -1070,25 +1115,25 @@ SMTP_PASSWORD=your_app_password
 
 ### Configuration Notes:
 
-1. **Replace Placeholder Values**: 
+1. **Replace Placeholder Values**:
    - `your-actual-openai-key-here` → Your real OpenAI API key
    - `your-actual-google-ai-key-here` → Your real Google AI API key
    - `internal_docs_password` → Your desired database password
 
-2. **JWT Secret**: 
+2. **JWT Secret**:
    - Generate a strong secret key for production
    - Use online generators or: `openssl rand -base64 32`
 
-3. **Database Password**: 
+3. **Database Password**:
    - Use a strong password for production
    - Match this with your PostgreSQL setup
 
-4. **Admin Configuration**: 
+4. **Admin Configuration**:
    - Set `ADMIN_EMAILS` with comma-separated email addresses
    - Users with these emails will have admin privileges
    - Example: `ADMIN_EMAILS=admin@company.com,ceo@company.com`
 
-5. **Email Configuration**: 
+5. **Email Configuration**:
    - Optional, only needed for password reset functionality
    - Use app-specific passwords for Gmail
 
@@ -1207,7 +1252,7 @@ Validates protection against prompt injection:
 #### **3. Multi-Provider Comparison**
 Tests consistency across AI providers:
 - **OpenAI GPT-3.5/GPT-4**: High quality, expensive
-- **Google Gemini**: Cost-effective, good performance  
+- **Google Gemini**: Cost-effective, good performance
 - **Ollama (Local)**: Free, privacy-focused
 
 ### 📊 **Test Results & Reporting**
@@ -1290,12 +1335,12 @@ git commit -m "Update RAG prompts [test-ai]"
 
 ### 📈 **Benefits of PromptFoo Integration**
 
-✅ **Quality Assurance**: Systematic testing of AI behavior  
-✅ **Security Validation**: Automated guardrail effectiveness testing  
-✅ **Provider Comparison**: Data-driven AI provider selection  
-✅ **Performance Monitoring**: Track response quality over time  
-✅ **Cost Optimization**: Monitor and optimize AI API usage  
-✅ **Regression Testing**: Catch AI behavior changes early  
+✅ **Quality Assurance**: Systematic testing of AI behavior
+✅ **Security Validation**: Automated guardrail effectiveness testing
+✅ **Provider Comparison**: Data-driven AI provider selection
+✅ **Performance Monitoring**: Track response quality over time
+✅ **Cost Optimization**: Monitor and optimize AI API usage
+✅ **Regression Testing**: Catch AI behavior changes early
 
 ### 🔍 **Example Test Scenarios**
 
@@ -1806,7 +1851,7 @@ ADMIN_EMAILS=admin@company.com,ceo@company.com,manager@company.com
 
 #### Core Functions
 - `CheckIfAdmin(userID string) bool` - Main function to check admin status
-- `getUserEmailByID(userID string)` - Helper to retrieve user email from database  
+- `getUserEmailByID(userID string)` - Helper to retrieve user email from database
 - `getAdminEmails()` - Helper to parse admin emails from environment
 
 #### Usage in Route Handlers
@@ -1819,7 +1864,7 @@ func adminOnlyRoute(context *gin.Context) {
         })
         return
     }
-    
+
     // Admin-only logic here
 }
 ```

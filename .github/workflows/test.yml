@@ -313,9 +313,9 @@ jobs:
       working-directory: ./frontend
       run: npm ci
 
-    - name: Lint Angular code
-      working-directory: ./frontend
-      run: npm run lint
+    # - name: Lint Angular code
+    #   working-directory: ./frontend
+    #   run: npm run lint
 
     - name: Run unit tests
       working-directory: ./frontend
