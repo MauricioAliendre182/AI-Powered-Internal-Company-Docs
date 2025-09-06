@@ -2,7 +2,7 @@ export interface Document {
   id: string;
   name: string;
   originalFilename: string;
-  uploaded_at: string;
+  uploadedAt: string;
   size?: number;
   contentType?: string;
 }
@@ -11,7 +11,7 @@ export interface DocumentResponse {
   id: string;
   name: string;
   originalFilename: string;
-  uploaded_at: string;
+  uploadedAt: string;
 }
 
 export interface DocumentUploadResponse {
@@ -31,7 +31,7 @@ export interface DocumentChunk {
 }
 
 export interface DocumentChunksResponse {
-  document_id: string;
+  documentId: string;
   chunks: DocumentChunk[];
 }
 

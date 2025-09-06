@@ -31,6 +31,7 @@ export class NavbarComponent {
       },
       error: (error) => {
         console.error('Failed to load user data:', error);
+        this.user = null; // Reset user data on error
       }
     });
   }

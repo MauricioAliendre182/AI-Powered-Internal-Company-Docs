@@ -5,4 +5,10 @@ export interface ResponseLogin {
   expiresIn: number;
 }
 
+export interface RegisterData {
+  name: string;
+  email: string;
+  password: string;
+}
+
 export type RefreshTokenResponse = Omit<ResponseLogin, 'message'>;

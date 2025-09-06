@@ -4,7 +4,7 @@ import { environment } from '@environments/environment';
 import { TokenService } from './token.service';
 import { BehaviorSubject, switchMap, tap } from 'rxjs';
 import { User } from '@models/user.model';
-import { RefreshTokenResponse, ResponseLogin } from '@models/auth.model';
+import { RefreshTokenResponse, RegisterData, ResponseLogin } from '@models/auth.model';
 import { checkToken } from '@interceptors/auth.interceptor';
 
 @Injectable({
@@ -73,21 +73,17 @@ export class AuthService {
     );
   }
 
-  register(name: string, email: string, password: string) {
-    return this.http.post(`${this.apiUrl}/auth/signup`, {
-      name,
-      email,
-      password,
-    });
+  register(registerData: RegisterData) {
+    return this.http.post(`${this.apiUrl}/auth/signup`, registerData);
   }
 
-  registerAndLogin(name: string, email: string, password: string) {
-    return this.register(name, email, password).pipe(
+  registerAndLogin(registerData: RegisterData) {
+    return this.register(registerData).pipe(
       // switchMap() is a RxJS operator that allows us to switch to a new observable
       // and to return the new observable.
       switchMap(() => {
         // If the response is correct I am going to login the user
-        return this.login(email, password);
+        return this.login(registerData.email, registerData.password);
       }),
     );
   }

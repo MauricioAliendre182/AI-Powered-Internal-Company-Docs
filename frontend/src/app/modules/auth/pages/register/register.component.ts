@@ -8,6 +8,7 @@ import { AuthButtonComponent } from '../../components/auth-button/auth-button.co
 import { AuthService } from '@services/auth.service';
 import { RequestStatus } from '@models/request-status.model';
 import { CustomValidators } from '@utils/validators';
+import { RegisterData } from '@models/auth.model';
 
 @Component({
   selector: 'app-register',
@@ -58,7 +59,11 @@ export class RegisterComponent implements OnInit {
       this.isLoading = true;
       const { firstName, lastName, email, password } = this.registerForm.getRawValue();
       const name = `${firstName} ${lastName}`;
-      this.authService.registerAndLogin(name, email, password).subscribe({
+      const userData: RegisterData = { name, email, password };
+      // I use registerAndLogin to automatically log in the user after registration
+      // This improves the user experience by avoiding an extra login step
+      // and immediately grants access to the app
+      this.authService.registerAndLogin(userData).subscribe({
         next: () => {
           this.status = 'success';
           this.router.navigate(['/app/documents']);

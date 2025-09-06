@@ -373,6 +373,115 @@ go test -memprofile=mem.prof -bench=. ./...
 - **AI Service Performance**: Response time and token usage tracking
 - **Guardrail Overhead**: <10ms additional processing per query
 
+## 🧪 Testing Guide
+
+### Running Unit Tests
+
+#### Backend Tests
+
+```bash
+# Run all backend tests
+cd backend
+go test ./...
+
+# Run tests with coverage
+go test -cover ./...
+
+# Test specific package
+go test ./models/...
+```
+
+#### Frontend Tests
+
+```bash
+# Run all Angular tests
+cd frontend
+ng test
+
+# Run specific tests
+ng test --include=**/my-component.spec.ts
+
+# Run tests without watching for changes
+ng test --no-watch
+```
+
+### Testing Best Practices
+
+#### Component Testing
+
+When testing Angular components, follow these best practices:
+
+1. **Test Setup**:
+   ```typescript
+   describe('MyComponent', () => {
+     let component: MyComponent;
+     let fixture: ComponentFixture<MyComponent>;
+     
+     beforeEach(async () => {
+       await TestBed.configureTestingModule({
+         imports: [MyComponent, /* other dependencies */],
+         providers: [/* services */]
+       }).compileComponents();
+       
+       fixture = TestBed.createComponent(MyComponent);
+       component = fixture.componentInstance;
+       fixture.detectChanges();
+     });
+     
+     it('should create', () => {
+       expect(component).toBeTruthy();
+     });
+   });
+   ```
+
+2. **Mocking Services**:
+   ```typescript
+   const mockService = jasmine.createSpyObj('ServiceName', ['method1', 'method2']);
+   mockService.method1.and.returnValue(of(mockData)); // For observables
+   ```
+
+3. **HTTP Testing**:
+   ```typescript
+   // In TestBed setup
+   imports: [HttpClientTestingModule],
+   providers: [
+     provideHttpClient(),
+     provideHttpClientTesting()
+   ]
+   
+   // In test
+   const httpTestingController = TestBed.inject(HttpTestingController);
+   // Make HTTP request
+   const req = httpTestingController.expectOne('/api/endpoint');
+   req.flush(mockResponseData);
+   httpTestingController.verify();
+   ```
+
+4. **Router Testing**:
+   ```typescript
+   // In TestBed setup
+   providers: [
+     { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate']) },
+     provideRouter([]) // For components with RouterModule imports
+   ]
+   ```
+
+### Troubleshooting Common Testing Issues
+
+1. **Router Issues**: If you encounter `Cannot read properties of undefined (reading 'root')` errors when testing components with router dependencies, try:
+   - Using `NO_ERRORS_SCHEMA`
+   - Testing component class methods directly
+   - Providing a mock Router: `{ provide: Router, useValue: mockRouter }`
+   - Using `provideRouter([])` alongside your mock Router
+
+2. **HttpClient Issues**: If you see `No provider for HttpClient` errors:
+   - Add `HttpClientTestingModule` to your imports
+   - Use `provideHttpClient()` and `provideHttpClientTesting()`
+
+3. **Async Testing Issues**: For testing code with Observables:
+   - Use `fakeAsync` and `tick()` to control async timing
+   - Use `waitForAsync` for asynchronous test completion
+
 ## 🔄 CI/CD Pipeline & Testing Strategy
 
 ### 🏗️ **Automated CI Pipeline**

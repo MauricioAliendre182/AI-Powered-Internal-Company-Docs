@@ -1,12 +1,23 @@
 import { TestBed } from '@angular/core/testing';
 
 import { TokenService } from './token.service';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 
 describe('TokenService', () => {
   let service: TokenService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      // providers is to make sure the service and HttpClientTestingModule are available
+      // provideHttpClient is needed for Angular 15+
+      // provideHttpClientTesting is needed for HttpTestingController
+      providers: [
+        TokenService,
+        provideHttpClient(),
+        provideHttpClientTesting(),
+      ],
+    });
     service = TestBed.inject(TokenService);
   });
 
